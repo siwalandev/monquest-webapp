@@ -25,6 +25,8 @@ const config: Config = {
       animation: {
         "pixel-float": "pixelFloat 3s ease-in-out infinite",
         "pixel-pulse": "pixelPulse 2s ease-in-out infinite",
+        "fadeIn": "fadeIn 150ms ease-out",
+        "scaleIn": "scaleIn 150ms ease-out",
       },
       keyframes: {
         pixelFloat: {
@@ -34,6 +36,14 @@ const config: Config = {
         pixelPulse: {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.7" },
+        },
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        scaleIn: {
+          "0%": { transform: "scale(0.95)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" },
         },
       },
     },

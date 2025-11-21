@@ -6,10 +6,11 @@ import * as Icons from 'react-icons/io5';
 
 interface Step {
   id: string;
-  number: string;
   title: string;
   description: string;
   icon: string;
+  order: number;
+  number?: string; // Backward compatibility
 }
 
 interface HowItWorksData {
@@ -82,7 +83,7 @@ export default function HowItWorksSection({ initialData }: HowItWorksSectionProp
 
         {/* Steps */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {howItWorksData.steps.map((step, index) => (
+          {howItWorksData.steps.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((step, index) => (
             <div key={step.id} className="relative h-full">
               {/* Connector Line (hidden on mobile, shown on desktop) */}
               {index < howItWorksData.steps.length - 1 && (
@@ -93,7 +94,7 @@ export default function HowItWorksSection({ initialData }: HowItWorksSectionProp
                 <div className="space-y-4 text-center flex flex-col h-full">
                   {/* Step Number */}
                   <div className="inline-block bg-pixel-primary text-pixel-darker font-pixel text-2xl w-12 h-12 flex items-center justify-center border-2 border-pixel-dark mx-auto">
-                    {step.number}
+                    {step.number || (index + 1)}
                   </div>
 
                   {/* Icon */}

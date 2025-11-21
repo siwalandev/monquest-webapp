@@ -1,110 +1,190 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import PixelCard from "@/components/ui/PixelCard";
-import PixelInput from "@/components/ui/PixelInput";
-import PixelTextarea from "@/components/ui/PixelTextarea";
-import PixelButton from "@/components/ui/PixelButton";
-import { IoSave, IoAdd, IoTrash } from "react-icons/io5";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import DraggableCard from "@/components/ui/DraggableCard";
+import Modal from "@/components/ui/Modal";
+import ConfirmModal from "@/components/ui/ConfirmModal";
+import IconPicker from "@/components/ui/IconPicker";
+import { IoAdd } from "react-icons/io5";
+import * as Icons from "react-icons/io5";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { nanoid } from "nanoid";
+
+interface Feature {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  color: "primary" | "secondary" | "accent";
+}
 
 export default function FeaturesContentPage() {
   const { user } = useAuth();
-  const [formData, setFormData] = useState<any>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const [features, setFeatures] = useState<Feature[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
+  const [editingFeature, setEditingFeature] = useState<Feature | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; feature: Feature | null }>({ isOpen: false, feature: null });
+  const [formData, setFormData] = useState({
+    icon: "IoGameController",
+    title: "",
+    description: "",
+    color: "primary" as "primary" | "secondary" | "accent",
+  });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const response = await fetch("/api/content/features");
-        const result = await response.json();
-        
-        if (result.success) {
-          setFormData(result.data.data);
-        } else {
-          toast.error("Failed to load features content");
-        }
-      } catch (error) {
-        console.error("Fetch features content error:", error);
-        toast.error("Failed to load content");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchContent();
+    fetchFeatures();
   }, []);
 
-  const handleSave = async () => {
+  const fetchFeatures = async () => {
+    try {
+      const response = await fetch("/api/content/features");
+      const result = await response.json();
+      
+      if (result.success) {
+        setFeatures(result.data.data.items || []);
+      } else {
+        toast.error("Failed to load features");
+      }
+    } catch (error) {
+      console.error("Fetch features error:", error);
+      toast.error("Failed to load features");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveFeatures = async (updatedFeatures: Feature[]) => {
     if (!user) {
       toast.error("User not authenticated");
-      return;
+      return false;
     }
 
-    setIsSaving(true);
     try {
       const response = await fetch("/api/content/features", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          data: formData,
+          data: {
+            title: "Game Features",
+            subtitle: "Why players love Monquest",
+            items: updatedFeatures,
+          },
           userId: user.id,
         }),
       });
 
       const result = await response.json();
-
       if (result.success) {
-        toast.success("Features saved successfully!");
+        toast.success("Features updated successfully!");
+        return true;
       } else {
-        toast.error(result.error || "Failed to save content");
+        toast.error(result.error || "Failed to save features");
+        return false;
       }
     } catch (error) {
-      console.error("Save features content error:", error);
-      toast.error("Failed to save content");
-    } finally {
-      setIsSaving(false);
+      console.error("Save features error:", error);
+      toast.error("Failed to save features");
+      return false;
     }
   };
 
-  const handleFeatureChange = (index: number, field: string, value: string) => {
-    const newItems = [...formData.items];
-    newItems[index] = { ...newItems[index], [field]: value };
-    setFormData({ ...formData, items: newItems });
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = features.findIndex((f) => f.id === active.id);
+      const newIndex = features.findIndex((f) => f.id === over.id);
+
+      const reorderedFeatures = arrayMove(features, oldIndex, newIndex);
+      setFeatures(reorderedFeatures);
+      await saveFeatures(reorderedFeatures);
+    }
   };
 
-  const addFeature = () => {
-    const newFeature = {
-      id: String(formData.items.length + 1),
-      icon: "IoHome",
-      title: "New Feature",
-      description: "Feature description",
-      color: "primary" as const,
-    };
-    setFormData({ ...formData, items: [...formData.items, newFeature] });
+  const openAddModal = () => {
+    setEditingFeature(null);
+    setFormData({
+      icon: "IoGameController",
+      title: "",
+      description: "",
+      color: "primary",
+    });
+    setIsModalOpen(true);
   };
 
-  const deleteFeature = (index: number) => {
-    const newItems = formData.items.filter((_: any, i: number) => i !== index);
-    setFormData({ ...formData, items: newItems });
+  const openEditModal = (feature: Feature) => {
+    setEditingFeature(feature);
+    setFormData({
+      icon: feature.icon,
+      title: feature.title,
+      description: feature.description,
+      color: feature.color,
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.title || !formData.description) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    let updatedFeatures: Feature[];
+
+    if (editingFeature) {
+      // Update existing
+      updatedFeatures = features.map((f) =>
+        f.id === editingFeature.id ? { ...editingFeature, ...formData } : f
+      );
+    } else {
+      // Add new
+      const newFeature: Feature = {
+        id: nanoid(),
+        ...formData,
+      };
+      updatedFeatures = [...features, newFeature];
+    }
+
+    const success = await saveFeatures(updatedFeatures);
+    if (success) {
+      setFeatures(updatedFeatures);
+      setIsModalOpen(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteConfirm.feature) return;
+
+    const updatedFeatures = features.filter((f) => f.id !== deleteConfirm.feature!.id);
+    const success = await saveFeatures(updatedFeatures);
+    
+    if (success) {
+      setFeatures(updatedFeatures);
+      setDeleteConfirm({ isOpen: false, feature: null });
+    }
+  };
+
+  const getIcon = (iconName: string) => {
+    const IconComponent = (Icons as any)[iconName];
+    return IconComponent ? <IconComponent className="text-2xl" /> : null;
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-pixel-light">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!formData) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-pixel-light">No content found</div>
+        <div className="text-white">Loading...</div>
       </div>
     );
   }
@@ -112,98 +192,166 @@ export default function FeaturesContentPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center border-b-4 border-pixel-primary pb-6">
+      <div className="flex justify-between items-center border-b-2 border-gray-800 pb-6">
         <div>
-          <h1 className="text-3xl text-pixel-primary font-pixel text-shadow-pixel mb-2">
-            Manage Features
-          </h1>
-          <p className="text-sm text-pixel-light/70">
-            Add, edit, or remove game features
-          </p>
+          <h1 className="text-3xl text-white font-bold mb-2">Manage Features</h1>
+          <p className="text-sm text-gray-400">Drag to reorder, click to edit or delete</p>
         </div>
-        <div className="flex gap-3">
-          <PixelButton variant="secondary" onClick={addFeature}>
-            <IoAdd className="inline mr-2" /> Add Feature
-          </PixelButton>
-          <PixelButton 
-            variant="primary" 
-            onClick={handleSave}
-            disabled={isSaving}
-          >
-            <IoSave className="inline mr-2" /> 
-            {isSaving ? "Saving..." : "Save Changes"}
-          </PixelButton>
-        </div>
+        <button
+          onClick={openAddModal}
+          className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100"
+        >
+          <IoAdd className="text-xl" />
+          Add Feature
+        </button>
       </div>
-
-      {/* Section Info */}
-      <PixelCard>
-        <div className="space-y-4">
-          <h2 className="text-lg text-pixel-primary font-pixel mb-4">
-            Section Info
-          </h2>
-          <PixelInput
-            label="Title"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          />
-          <PixelInput
-            label="Subtitle"
-            value={formData.subtitle}
-            onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-          />
-        </div>
-      </PixelCard>
 
       {/* Features List */}
-      <div className="space-y-4">
-        {formData.items.map((feature: any, index: number) => (
-          <PixelCard key={feature.id} glowColor={feature.color as "primary" | "secondary" | "accent"}>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-base text-pixel-primary font-pixel">
-                  Feature #{index + 1}
-                </h3>
-                <PixelButton 
-                  size="sm" 
-                  variant="secondary"
-                  onClick={() => deleteFeature(index)}
+      {features.length === 0 ? (
+        <div className="text-center py-12 bg-gray-900 border-2 border-gray-800">
+          <p className="text-gray-400 mb-4">No features yet</p>
+          <button
+            onClick={openAddModal}
+            className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100"
+          >
+            Add First Feature
+          </button>
+        </div>
+      ) : (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={features.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-3">
+              {features.map((feature) => (
+                <DraggableCard
+                  key={feature.id}
+                  id={feature.id}
+                  onEdit={() => openEditModal(feature)}
+                  onDelete={() => setDeleteConfirm({ isOpen: true, feature })}
                 >
-                  <IoTrash className="inline mr-1" /> Delete
-                </PixelButton>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <PixelInput
-                  label="Icon Name"
-                  value={feature.icon}
-                  onChange={(e) => handleFeatureChange(index, "icon", e.target.value)}
-                  placeholder="IoHome, IoShield, etc."
-                />
-                <PixelInput
-                  label="Color"
-                  value={feature.color}
-                  onChange={(e) => handleFeatureChange(index, "color", e.target.value)}
-                  placeholder="primary, secondary, accent"
-                />
-              </div>
-
-              <PixelInput
-                label="Title"
-                value={feature.title}
-                onChange={(e) => handleFeatureChange(index, "title", e.target.value)}
-              />
-
-              <PixelTextarea
-                label="Description"
-                value={feature.description}
-                onChange={(e) => handleFeatureChange(index, "description", e.target.value)}
-                rows={3}
-              />
+                  <div className="flex items-start gap-4">
+                    <div className={`p-3 rounded-lg ${
+                      feature.color === 'primary' ? 'bg-green-500/10 text-green-400' :
+                      feature.color === 'secondary' ? 'bg-blue-500/10 text-blue-400' :
+                      'bg-orange-500/10 text-orange-400'
+                    }`}>
+                      {getIcon(feature.icon)}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-white mb-1">{feature.title}</h3>
+                      <p className="text-sm text-gray-400">{feature.description}</p>
+                    </div>
+                  </div>
+                </DraggableCard>
+              ))}
             </div>
-          </PixelCard>
-        ))}
-      </div>
+          </SortableContext>
+        </DndContext>
+      )}
+
+      {/* Add/Edit Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={editingFeature ? "Edit Feature" : "Add Feature"}
+        size="md"
+        footer={
+          <>
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-100"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="px-4 py-2 text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100"
+            >
+              {editingFeature ? "Update" : "Add"} Feature
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          {/* Icon Picker */}
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Icon</label>
+            <button
+              onClick={() => setIsIconPickerOpen(true)}
+              className="w-full p-4 bg-gray-800 border-2 border-gray-700 hover:border-gray-600 text-white flex items-center gap-3 transition-all duration-100"
+            >
+              {getIcon(formData.icon)}
+              <span>{formData.icon}</span>
+            </button>
+          </div>
+
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Title *</label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              placeholder="Enter feature title"
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Description *</label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              rows={4}
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100 resize-none"
+              placeholder="Enter feature description"
+            />
+          </div>
+
+          {/* Color */}
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Color Theme</label>
+            <div className="grid grid-cols-3 gap-2">
+              {(["primary", "secondary", "accent"] as const).map((color) => (
+                <button
+                  key={color}
+                  onClick={() => setFormData({ ...formData, color })}
+                  className={`
+                    p-3 border-2 transition-all duration-100 text-sm font-medium capitalize
+                    ${formData.color === color
+                      ? color === 'primary' ? 'border-green-500 bg-green-500/10 text-green-400' :
+                        color === 'secondary' ? 'border-blue-500 bg-blue-500/10 text-blue-400' :
+                        'border-orange-500 bg-orange-500/10 text-orange-400'
+                      : 'border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600'
+                    }
+                  `}
+                >
+                  {color}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Icon Picker Modal */}
+      <IconPicker
+        isOpen={isIconPickerOpen}
+        onClose={() => setIsIconPickerOpen(false)}
+        onSelect={(iconName) => setFormData({ ...formData, icon: iconName })}
+        selectedIcon={formData.icon}
+      />
+
+      {/* Delete Confirmation */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, feature: null })}
+        onConfirm={handleDelete}
+        title="Delete Feature?"
+        message={`Are you sure you want to delete "${deleteConfirm.feature?.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        variant="danger"
+      />
     </div>
   );
 }

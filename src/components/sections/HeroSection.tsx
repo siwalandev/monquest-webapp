@@ -3,15 +3,41 @@
 import { useState, useEffect } from "react";
 import PixelButton from "@/components/ui/PixelButton";
 import PixelIcon from "@/components/ui/PixelIcon";
+import * as Icons from 'react-icons/io5';
 import { IoGameController, IoBook, IoHome, IoShield, IoSkull } from 'react-icons/io5';
+
+// Helper to get icon component
+const getIcon = (iconName: string) => {
+  const IconComponent = (Icons as any)[iconName];
+  return IconComponent || IoGameController;
+};
+
+interface CTAButton {
+  id: string;
+  text: string;
+  icon: string;
+  variant: 'primary' | 'secondary' | 'outline';
+  link: string;
+  order: number;
+}
+
+interface Stat {
+  id: string;
+  value: string;
+  label: string;
+  icon?: string;
+  order: number;
+}
 
 interface HeroData {
   title: string;
   subtitle: string;
   description: string;
-  ctaPrimary: { text: string; icon: string };
-  ctaSecondary: { text: string; icon: string };
-  stats: { value: string; label: string }[];
+  ctaButtons?: CTAButton[];
+  stats?: Stat[];
+  // Backward compatibility
+  ctaPrimary?: { text: string; icon: string };
+  ctaSecondary?: { text: string; icon: string };
 }
 
 interface HeroSectionProps {
@@ -86,20 +112,47 @@ export default function HeroSection({ initialData }: HeroSectionProps) {
           {heroData.description}
         </p>
 
-        {/* CTA Buttons */}
+        {/* CTA Buttons - support both new and old structure */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-          <PixelButton size="lg" variant="primary">
-            <IoGameController className="inline-block mr-2" /> {heroData.ctaPrimary.text}
-          </PixelButton>
-          <PixelButton size="lg" variant="secondary">
-            <IoBook className="inline-block mr-2" /> {heroData.ctaSecondary.text}
-          </PixelButton>
+          {heroData.ctaButtons ? (
+            // New structure: dynamic array
+            heroData.ctaButtons
+              .sort((a, b) => a.order - b.order)
+              .map((cta) => {
+                const Icon = getIcon(cta.icon);
+                return (
+                  <PixelButton 
+                    key={cta.id} 
+                    size="lg" 
+                    variant={cta.variant as any}
+                  >
+                    <Icon className="inline-block mr-2" /> {cta.text}
+                  </PixelButton>
+                );
+              })
+          ) : (
+            // Old structure: backward compatibility
+            <>
+              {heroData.ctaPrimary && (
+                <PixelButton size="lg" variant="primary">
+                  <IoGameController className="inline-block mr-2" /> {heroData.ctaPrimary.text}
+                </PixelButton>
+              )}
+              {heroData.ctaSecondary && (
+                <PixelButton size="lg" variant="secondary">
+                  <IoBook className="inline-block mr-2" /> {heroData.ctaSecondary.text}
+                </PixelButton>
+              )}
+            </>
+          )}
         </div>
 
-        {/* Stats */}
+        {/* Stats - support both new and old structure */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-12">
-          {heroData.stats.map((stat, index) => (
-            <div key={index} className="space-y-2">
+          {(heroData.stats || [])
+            .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+            .map((stat: any, index: number) => (
+            <div key={stat.id || index} className="space-y-2">
               <div className={`text-3xl md:text-4xl font-pixel ${
                 index === 0 ? 'text-pixel-primary' :
                 index === 1 ? 'text-pixel-secondary' :
