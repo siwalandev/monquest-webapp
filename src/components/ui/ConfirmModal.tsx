@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 import Modal from "./Modal";
 import { IoWarning, IoTrash, IoInformationCircle } from "react-icons/io5";
 
@@ -11,7 +11,7 @@ interface ConfirmModalProps {
   onClose: () => void;
   onConfirm: () => void | Promise<void>;
   title: string;
-  message: string;
+  message: string | ReactNode;
   confirmText?: string;
   cancelText?: string;
   variant?: ConfirmVariant;

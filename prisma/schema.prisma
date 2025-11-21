@@ -10,27 +10,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Admin Users
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String   // bcrypt hashed
-  name      String
-  role      Role     @default(ADMIN)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// Roles dengan permission system
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  permissions Json     // Array of permission keys stored as JSON
+  isSystem    Boolean  @default(false) // true for SUPER_ADMIN, ADMIN
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
+  users User[]
+
+  @@index([slug])
+  @@map("roles")
+}
+
+// Admin Users
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String    // bcrypt hashed
+  name      String
+  roleId    String
+  status    Status    @default(ACTIVE)
+  lastLogin DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  role         Role          @relation(fields: [roleId], references: [id], onDelete: Restrict)
   apiKeys      ApiKey[]
   activityLogs ActivityLog[]
   media        Media[]
 
+  @@index([roleId])
   @@map("users")
-}
-
-enum Role {
-  ADMIN
-  SUPER_ADMIN
 }
 
 // API Keys untuk external integrations

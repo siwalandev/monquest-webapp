@@ -95,13 +95,13 @@ export default function LoginPage() {
                     </form>
 
                     {/* Demo Credentials */}
-                    {/* <div className="mt-6 p-4 bg-gray-700/50 rounded-lg border border-gray-600">
+                    <div className="mt-6 p-4 bg-gray-700/50 rounded-lg border border-gray-600">
                         <p className="text-xs text-gray-400 mb-2">Demo Credentials:</p>
                         <p className="text-sm text-gray-300 font-mono">
                             Email: admin@monquest.com<br />
                             Password: admin123
                         </p>
-                    </div> */}
+                    </div>
                 </div>
 
                 {/* Footer */}

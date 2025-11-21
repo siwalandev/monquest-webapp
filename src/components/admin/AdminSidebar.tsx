@@ -12,25 +12,42 @@ import {
   IoGameController,
   IoChevronDown,
   IoKey,
-  IoStatsChart
+  IoStatsChart,
+  IoPeople,
+  IoShield
 } from "react-icons/io5";
 import { useState } from "react";
 
 // Helper function to get role badge styles
-const getRoleBadgeClass = (role: string) => {
-  switch (role.toLowerCase()) {
+const getRoleBadgeClass = (role: any) => {
+  // Handle both old string format and new object format
+  const slug = typeof role === 'string' ? role.toLowerCase() : role?.slug || '';
+  
+  switch (slug) {
     case 'super_admin':
       return 'bg-purple-500/20 text-purple-400';
     case 'admin':
       return 'bg-blue-500/20 text-blue-400';
-    default:
+    case 'editor':
+      return 'bg-green-500/20 text-green-400';
+    case 'viewer':
       return 'bg-gray-500/20 text-gray-400';
+    default:
+      return 'bg-cyan-500/20 text-cyan-400';
   }
+};
+
+// Helper to get role display name
+const getRoleDisplayName = (role: any) => {
+  if (typeof role === 'string') {
+    return role.replace('_', ' ');
+  }
+  return role?.name || 'Unknown';
 };
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const { logout, user } = useAuth();
+  const { logout, user, hasPermission } = useAuth();
   const [openMenus, setOpenMenus] = useState<string[]>(["content"]);
 
   const menuItems = [
@@ -38,34 +55,56 @@ export default function AdminSidebar() {
       title: "Dashboard",
       href: "/admin",
       icon: <IoStatsChart className="text-xl" />,
+      permission: null, // Dashboard accessible to all
     },
     {
       id: "content",
       title: "Content",
       icon: <IoDocument className="text-xl" />,
+      permission: "content.view",
       submenu: [
-        { title: "Hero Section", href: "/admin/content/hero" },
-        { title: "Features", href: "/admin/content/features" },
-        { title: "How It Works", href: "/admin/content/how-it-works" },
-        { title: "Roadmap", href: "/admin/content/roadmap" },
-        { title: "FAQ", href: "/admin/content/faq" },
+        { title: "Hero Section", href: "/admin/content/hero", permission: "content.view" },
+        { title: "Features", href: "/admin/content/features", permission: "content.view" },
+        { title: "How It Works", href: "/admin/content/how-it-works", permission: "content.view" },
+        { title: "Roadmap", href: "/admin/content/roadmap", permission: "content.view" },
+        { title: "FAQ", href: "/admin/content/faq", permission: "content.view" },
       ],
     },
+    // {
+    //   title: "Media Library",
+    //   href: "/admin/media",
+    //   icon: <IoImage className="text-xl" />,
+    //   permission: "media.view",
+    // },
     {
-      title: "Media Library",
-      href: "/admin/media",
-      icon: <IoImage className="text-xl" />,
+      title: "Users",
+      href: "/admin/users",
+      icon: <IoPeople className="text-xl" />,
+      permission: "users.view",
+    },
+    {
+      title: "Roles",
+      href: "/admin/roles",
+      icon: <IoShield className="text-xl" />,
+      permission: "roles.view",
     },
     {
       id: "settings",
       title: "Settings",
       icon: <IoSettings className="text-xl" />,
+      permission: "settings.view",
       submenu: [
-        { title: "API Keys", href: "/admin/settings/api-keys" },
-        { title: "General", href: "/admin/settings/general" },
+        { title: "API Keys", href: "/admin/settings/api-keys", permission: "apiKeys.view" },
+        { title: "General", href: "/admin/settings/general", permission: "settings.view" },
       ],
     },
   ];
+
+  // Check if user has permission for a menu item
+  const hasMenuPermission = (permission: string | null) => {
+    if (!permission) return true; // No permission required
+    return hasPermission(permission);
+  };
 
   const isActive = (href: string) => pathname === href;
   
@@ -107,7 +146,7 @@ export default function AdminSidebar() {
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium text-white truncate">{user.name}</div>
               <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium mt-1 ${getRoleBadgeClass(user.role)}`}>
-                {user.role.replace('_', ' ')}
+                {getRoleDisplayName(user.role)}
               </span>
             </div>
           </div>
@@ -116,9 +155,13 @@ export default function AdminSidebar() {
 
       {/* Navigation */}
       <nav className="p-4 space-y-1">
-        {menuItems.map((item, index) => (
+        {menuItems.map((item, index) => {
+          const hasAccess = hasMenuPermission(item.permission);
+          
+          return (
           <div key={index}>
             {item.href ? (
+              hasAccess ? (
               <Link
                 href={item.href}
                 className={`
@@ -137,6 +180,15 @@ export default function AdminSidebar() {
                 {item.icon}
                 <span>{item.title}</span>
               </Link>
+              ) : (
+                <div
+                  className="flex items-center gap-3 px-4 py-3 rounded-none border-l-[6px] border-transparent text-gray-600 text-sm font-medium cursor-not-allowed opacity-50"
+                  title="You don't have permission to access this page"
+                >
+                  {item.icon}
+                  <span>{item.title}</span>
+                </div>
+              )
             ) : (
               <>
                 <button
@@ -168,7 +220,10 @@ export default function AdminSidebar() {
                 </button>
                 {item.submenu && item.id && openMenus.includes(item.id) && (
                   <div className="mt-1 space-y-0.5">
-                    {item.submenu.map((subitem, subindex) => (
+                    {item.submenu.map((subitem, subindex) => {
+                      const hasSubAccess = hasMenuPermission(subitem.permission);
+                      
+                      return hasSubAccess ? (
                       <Link
                         key={subindex}
                         href={subitem.href}
@@ -188,13 +243,23 @@ export default function AdminSidebar() {
                         <span className={`w-1.5 h-1.5 ${isActive(subitem.href) ? 'rounded-none' : 'rounded-full'} bg-current mr-3 ${isActive(subitem.href) ? 'opacity-100' : 'opacity-50'}`}></span>
                         {subitem.title}
                       </Link>
-                    ))}
+                      ) : (
+                        <div
+                          key={subindex}
+                          className="flex items-center pl-12 pr-4 py-2.5 rounded-none text-xs border-l-[6px] border-transparent text-gray-600 cursor-not-allowed opacity-50"
+                          title="You don't have permission to access this page"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-current mr-3 opacity-50"></span>
+                          {subitem.title}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </>
             )}
           </div>
-        ))}
+        );})}
       </nav>
 
       {/* Bottom Actions */}

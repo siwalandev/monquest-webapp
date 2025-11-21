@@ -3,8 +3,128 @@ import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
+// Permission constants
+const PERMISSIONS = {
+  users: [
+    'users.view',
+    'users.create',
+    'users.edit',
+    'users.delete',
+    'users.manage_roles',
+  ],
+  roles: [
+    'roles.view',
+    'roles.create',
+    'roles.edit',
+    'roles.delete',
+    'roles.assign',
+  ],
+  content: [
+    'content.view',
+    'content.create',
+    'content.edit',
+    'content.delete',
+  ],
+  media: [
+    'media.view',
+    'media.upload',
+    'media.delete',
+  ],
+  apiKeys: [
+    'apiKeys.view',
+    'apiKeys.create',
+    'apiKeys.delete',
+  ],
+  settings: [
+    'settings.view',
+    'settings.edit',
+  ],
+};
+
+const ALL_PERMISSIONS = Object.values(PERMISSIONS).flat();
+
 async function main() {
   console.log('🌱 Starting seed...');
+
+  // Create roles (already created in migration, but upsert for safety)
+  const superAdminRole = await prisma.role.upsert({
+    where: { slug: 'super_admin' },
+    update: {
+      permissions: ALL_PERMISSIONS,
+    },
+    create: {
+      id: 'role_super_admin',
+      name: 'Super Admin',
+      slug: 'super_admin',
+      description: 'Full system access with all permissions',
+      permissions: ALL_PERMISSIONS,
+      isSystem: true,
+    },
+  });
+
+  const adminRole = await prisma.role.upsert({
+    where: { slug: 'admin' },
+    update: {
+      permissions: [
+        ...PERMISSIONS.users.filter(p => p !== 'users.delete' && p !== 'users.manage_roles'),
+        ...PERMISSIONS.content,
+        ...PERMISSIONS.media,
+        ...PERMISSIONS.apiKeys,
+        PERMISSIONS.settings[0], // only settings.view
+      ],
+    },
+    create: {
+      id: 'role_admin',
+      name: 'Admin',
+      slug: 'admin',
+      description: 'Administrative access with limited permissions',
+      permissions: [
+        ...PERMISSIONS.users.filter(p => p !== 'users.delete' && p !== 'users.manage_roles'),
+        ...PERMISSIONS.content,
+        ...PERMISSIONS.media,
+        ...PERMISSIONS.apiKeys,
+        PERMISSIONS.settings[0], // only settings.view
+      ],
+      isSystem: true,
+    },
+  });
+
+  // Create optional roles for flexibility
+  const editorRole = await prisma.role.upsert({
+    where: { slug: 'editor' },
+    update: {},
+    create: {
+      name: 'Editor',
+      slug: 'editor',
+      description: 'Content management access only',
+      permissions: [
+        ...PERMISSIONS.content,
+        ...PERMISSIONS.media,
+      ],
+      isSystem: false,
+    },
+  });
+
+  const viewerRole = await prisma.role.upsert({
+    where: { slug: 'viewer' },
+    update: {},
+    create: {
+      name: 'Viewer',
+      slug: 'viewer',
+      description: 'Read-only access to all content',
+      permissions: [
+        'users.view',
+        'roles.view',
+        'content.view',
+        'media.view',
+        'apiKeys.view',
+        'settings.view',
+      ],
+      isSystem: false,
+    },
+  });
+
+  console.log('✅ Created roles:', superAdminRole.name, adminRole.name, editorRole.name, viewerRole.name);
 
   // Create default admin user
   const hashedPassword = await bcrypt.hash('admin123', 10);
@@ -16,7 +136,7 @@ async function main() {
       email: 'admin@monquest.com',
       password: hashedPassword,
       name: 'Admin User',
-      role: 'ADMIN',
+      roleId: superAdminRole.id,
     },
   });
 

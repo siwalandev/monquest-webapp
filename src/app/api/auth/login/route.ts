@@ -14,15 +14,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user by email
+    // Find user by email with role
     const user = await prisma.user.findUnique({
       where: { email },
+      include: {
+        role: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            permissions: true,
+            isSystem: true,
+          },
+        },
+      },
     });
 
     if (!user) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
+      );
+    }
+
+    // Check if user is active
+    if (user.status !== 'ACTIVE') {
+      return NextResponse.json(
+        { error: 'Account is inactive. Please contact administrator.' },
+        { status: 403 }
       );
     }
 
@@ -35,6 +54,12 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    // Update last login
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLogin: new Date() },
+    });
 
     // Log activity
     await prisma.activityLog.create({
