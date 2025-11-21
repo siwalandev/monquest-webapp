@@ -14,7 +14,9 @@ import {
   IoKey,
   IoStatsChart,
   IoPeople,
-  IoShield
+  IoShield,
+  IoMenu,
+  IoClose
 } from "react-icons/io5";
 import { useState } from "react";
 
@@ -45,10 +47,22 @@ const getRoleDisplayName = (role: any) => {
   return role?.name || 'Unknown';
 };
 
-export default function AdminSidebar() {
+interface AdminSidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps = {}) {
   const pathname = usePathname();
   const { logout, user, hasPermission } = useAuth();
   const [openMenus, setOpenMenus] = useState<string[]>(["content"]);
+  
+  const handleLinkClick = () => {
+    // Close mobile sidebar when a link is clicked
+    if (onClose) {
+      onClose();
+    }
+  };
 
   const menuItems = [
     {
@@ -122,18 +136,46 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-gray-900 border-r border-gray-800 overflow-y-auto">
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <aside className={`
+        fixed left-0 top-0 h-screen w-64 bg-gray-900 border-r border-gray-800 overflow-y-auto z-50
+        transition-transform duration-300 ease-in-out
+        lg:translate-x-0
+        ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }
+      `}>
       {/* Logo/Brand */}
       <div className="p-6 border-b border-gray-800">
-        <Link href="/admin" className="flex items-center gap-3">
-          <IoGameController className="text-3xl text-green-400" />
-          <div>
-            <div className="text-lg font-bold text-white">
-              MONQUEST
+        <div className="flex items-center justify-between mb-2 lg:mb-0">
+          <Link href="/admin" className="flex items-center gap-3" onClick={handleLinkClick}>
+            <IoGameController className="text-3xl text-green-400" />
+            <div>
+              <div className="text-lg font-bold text-white">
+                MONQUEST
+              </div>
+              <div className="text-xs text-gray-400">Admin Panel</div>
             </div>
-            <div className="text-xs text-gray-400">Admin Panel</div>
-          </div>
-        </Link>
+          </Link>
+          
+          {/* Mobile Close Button */}
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 text-gray-400 hover:text-white hover:bg-gray-800 transition-colors duration-100"
+            aria-label="Close menu"
+          >
+            <IoClose className="text-2xl" />
+          </button>
+        </div>
       </div>
 
       {/* User Info */}
@@ -164,6 +206,7 @@ export default function AdminSidebar() {
               hasAccess ? (
               <Link
                 href={item.href}
+                onClick={handleLinkClick}
                 className={`
                   flex items-center gap-3 px-4 py-3 rounded-none
                   border-l-[6px] transition-all duration-100 text-sm font-medium
@@ -227,6 +270,7 @@ export default function AdminSidebar() {
                       <Link
                         key={subindex}
                         href={subitem.href}
+                        onClick={handleLinkClick}
                         className={`
                           flex items-center pl-12 pr-4 py-2.5 rounded-none text-xs
                           border-l-[6px] transition-all duration-100
@@ -273,5 +317,6 @@ export default function AdminSidebar() {
         </button>
       </div>
     </aside>
+    </>
   );
 }
