@@ -30,15 +30,21 @@ model Role {
 
 // Admin Users
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  password  String    // bcrypt hashed
-  name      String
-  roleId    String
-  status    Status    @default(ACTIVE)
-  lastLogin DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  email           String?   @unique // Optional for Web3-only users
+  password        String?   // bcrypt hashed - Optional for Web3 auth
+  name            String
+  roleId          String
+  status          Status    @default(ACTIVE)
+  lastLogin       DateTime?
+  
+  // Web3 Authentication Fields
+  walletAddress   String?   @unique // Primary wallet for Web3 auth
+  privyId         String?   @unique // Privy user ID
+  authMethod      AuthMethod @default(EMAIL) // EMAIL, WEB3, or HYBRID
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   // Relations
   role         Role          @relation(fields: [roleId], references: [id], onDelete: Restrict)
@@ -47,7 +53,15 @@ model User {
   media        Media[]
 
   @@index([roleId])
+  @@index([walletAddress])
+  @@index([privyId])
   @@map("users")
+}
+
+enum AuthMethod {
+  EMAIL     // Traditional email/password
+  WEB3      // Web3 wallet only
+  HYBRID    // Both email and wallet linked
 }
 
 // API Keys untuk external integrations

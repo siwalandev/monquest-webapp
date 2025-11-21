@@ -2,11 +2,12 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { usePrivy } from '@privy-io/react-auth';
 import { hasPermission, hasAnyPermission, hasAllPermissions, isSuperAdmin, UserWithRole } from "@/lib/permissions";
 
 interface User {
   id: string;
-  email: string;
+  email: string | null;
   name: string;
   role: {
     id: string;
@@ -17,6 +18,8 @@ interface User {
   };
   status: string;
   lastLogin?: Date;
+  walletAddress?: string | null;
+  authMethod: 'EMAIL' | 'WEB3' | 'HYBRID';
 }
 
 interface AuthContextType {
@@ -24,11 +27,15 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithWallet: (walletAddress: string, signature: string, message: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   hasPermission: (permission: string) => boolean;
   hasAnyPermission: (permissions: string[]) => boolean;
   hasAllPermissions: (permissions: string[]) => boolean;
   isSuperAdmin: () => boolean;
+  // Privy authentication state
+  privyReady: boolean;
+  privyAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,6 +45,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  
+  // Privy hooks
+  const { ready: privyReady, authenticated: privyAuthenticated, user: privyUser, logout: privyLogout } = usePrivy();
 
   useEffect(() => {
     // Check if user is logged in from localStorage
@@ -105,11 +115,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const loginWithWallet = async (walletAddress: string, signature: string, message: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await fetch('/api/auth/wallet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ walletAddress, signature, message }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Wallet login failed' };
+      }
+
+      if (data.success && data.user) {
+        setUser(data.user);
+        setIsAuthenticated(true);
+        localStorage.setItem("admin_user", JSON.stringify(data.user));
+        return { success: true };
+      }
+
+      return { success: false, error: 'Invalid response from server' };
+    } catch (error) {
+      console.error('Wallet login error:', error);
+      return { success: false, error: 'Network error. Please try again.' };
+    }
+  };
+
   const logout = async () => {
     try {
       await fetch('/api/auth/logout', {
         method: 'POST',
       });
+      
+      // Logout from Privy if authenticated
+      if (privyAuthenticated) {
+        await privyLogout();
+      }
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -125,12 +170,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated, 
       user, 
       isLoading, 
-      login, 
+      login,
+      loginWithWallet,
       logout,
       hasPermission: (permission: string) => hasPermission(user as UserWithRole, permission),
       hasAnyPermission: (permissions: string[]) => hasAnyPermission(user as UserWithRole, permissions),
       hasAllPermissions: (permissions: string[]) => hasAllPermissions(user as UserWithRole, permissions),
       isSuperAdmin: () => isSuperAdmin(user as UserWithRole),
+      privyReady,
+      privyAuthenticated,
     }}>
       {children}
     </AuthContext.Provider>
