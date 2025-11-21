@@ -1,0 +1,34 @@
+{
+  "title": "How It Works",
+  "subtitle": "Start your adventure in just 4 simple steps",
+  "steps": [
+    {
+      "id": "1",
+      "number": "1",
+      "icon": "IoLink",
+      "title": "Connect Wallet",
+      "description": "Connect your Web3 wallet to access the game on Monad blockchain."
+    },
+    {
+      "id": "2",
+      "number": "2",
+      "icon": "IoCompass",
+      "title": "Choose Your Path",
+      "description": "Select your starting hero and receive your first tower NFTs."
+    },
+    {
+      "id": "3",
+      "number": "3",
+      "icon": "IoHammer",
+      "title": "Build & Defend",
+      "description": "Place towers strategically and defend against monster waves."
+    },
+    {
+      "id": "4",
+      "number": "4",
+      "icon": "IoArrowUp",
+      "title": "Earn & Upgrade",
+      "description": "Collect rewards, upgrade towers, and mint rare NFT items."
+    }
+  ]
+}

@@ -1,40 +1,41 @@
 import PixelCard from "@/components/ui/PixelCard";
 import PixelIcon from "@/components/ui/PixelIcon";
+import { IoHome, IoShield, IoColorPalette, IoDiamond, IoTrophy, IoEarth } from 'react-icons/io5';
 
 export default function FeaturesSection() {
   const features = [
     {
-      icon: "🏰",
+      icon: <IoHome />,
       title: "Strategic Defense",
       description: "Build and upgrade towers with unique abilities. Plan your defense strategy carefully!",
       color: "primary" as const,
     },
     {
-      icon: "⚔️",
+      icon: <IoShield />,
       title: "Epic Battles",
       description: "Fight against waves of monsters with increasing difficulty. Boss battles await!",
       color: "secondary" as const,
     },
     {
-      icon: "🎨",
+      icon: <IoColorPalette />,
       title: "Pixel-Art Beauty",
       description: "Stunning retro pixel-art graphics with smooth animations and vibrant colors.",
       color: "accent" as const,
     },
     {
-      icon: "💎",
+      icon: <IoDiamond />,
       title: "NFT Assets",
       description: "Own your towers, heroes, and items as NFTs. Trade on the marketplace!",
       color: "primary" as const,
     },
     {
-      icon: "🏆",
+      icon: <IoTrophy />,
       title: "Compete & Earn",
       description: "Climb the leaderboard and earn rewards. Play-to-earn on Monad blockchain.",
       color: "secondary" as const,
     },
     {
-      icon: "🌏",
+      icon: <IoEarth />,
       title: "Nusantara Theme",
       description: "Explore archipelago-inspired maps with unique cultural elements and lore.",
       color: "accent" as const,
@@ -59,7 +60,7 @@ export default function FeaturesSection() {
           {features.map((feature, index) => (
             <PixelCard key={index} glowColor={feature.color}>
               <div className="space-y-4 text-center">
-                <PixelIcon size="md">{feature.icon}</PixelIcon>
+                <div className="text-4xl flex justify-center mb-2">{feature.icon}</div>
                 <h3 className="text-lg text-pixel-primary font-pixel">
                   {feature.title}
                 </h3>

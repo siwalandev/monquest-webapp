@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { IoHome } from 'react-icons/io5';
 
 export default function Footer() {
   return (
@@ -8,7 +9,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <span className="text-3xl">🏰</span>
+              <span className="text-3xl"><IoHome /></span>
               <span className="text-lg text-pixel-primary font-pixel">
                 MONQUEST
               </span>
@@ -108,7 +109,7 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t-2 border-pixel-primary/30">
           <p className="text-center text-xs text-pixel-light/50">
-            © 2025 Monquest. Built on Monad. All rights reserved. 🏰⚔️
+            © 2025 Monquest. Built on Monad. All rights reserved.
           </p>
         </div>
       </div>
