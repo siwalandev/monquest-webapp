@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 // Permission constants (same as seed.ts)
 const PERMISSIONS = {
+  panel: [
+    { key: "panel.access", label: "Panel Access", description: "Required to access admin panel" },
+  ],
   users: [
     { key: "users.view", label: "View Users", description: "Can view user list and details" },
     { key: "users.create", label: "Create Users", description: "Can create new users" },

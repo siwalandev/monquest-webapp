@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { usePrivy } from '@privy-io/react-auth';
+import { toast } from 'react-hot-toast';
 import { hasPermission, hasAnyPermission, hasAllPermissions, isSuperAdmin, UserWithRole } from "@/lib/permissions";
 
 interface User {
@@ -29,6 +30,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   loginWithWallet: (walletAddress: string, signature: string, message: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
   hasPermission: (permission: string) => boolean;
   hasAnyPermission: (permissions: string[]) => boolean;
   hasAllPermissions: (permissions: string[]) => boolean;
@@ -46,12 +48,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [forceUpdate, setForceUpdate] = useState(0); // Force re-render when permissions change
   const router = useRouter();
   
   // Privy hooks
   const { ready: privyReady, authenticated: privyAuthenticated, user: privyUser, logout: privyLogout, getAccessToken } = usePrivy();
 
-  // Auto-sync with Privy authentication on mount
+  // Periodic role check to detect database changes
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
+
+    const checkRoleUpdate = async () => {
+      try {
+        const response = await fetch('/api/auth/me', {
+          headers: {
+            'x-user-id': user.id,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user) {
+            // Check if role changed OR permissions changed
+            const roleChanged = data.user.role.id !== user.role.id;
+            const permissionsChanged = JSON.stringify(data.user.role.permissions.sort()) !== JSON.stringify(user.role.permissions.sort());
+            
+              if (roleChanged || permissionsChanged) {
+                console.log('🔄 Permissions updated in database, refreshing...', {
+                  roleChanged,
+                  permissionsChanged,
+                  oldPerms: user.role.permissions,
+                  newPerms: data.user.role.permissions
+                });
+                // Update user data with new permissions
+                setUser(data.user);
+                localStorage.setItem("admin_user", JSON.stringify(data.user));
+                toast.success('Your permissions have been updated!');
+                // Force re-render all components
+                setForceUpdate(prev => prev + 1);
+                window.dispatchEvent(new Event('permissionsUpdated'));
+                window.dispatchEvent(new Event('storage'));
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Failed to check role update:', error);
+        }
+      };
+
+      // Check every 10 seconds for faster permission sync
+      const interval = setInterval(checkRoleUpdate, 10000);
+      return () => clearInterval(interval);
+    }, [isAuthenticated, user]);  // Auto-sync with Privy authentication on mount
   useEffect(() => {
     const syncAuth = async () => {
       // First check localStorage
@@ -70,8 +117,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
           }
           
+          // Set initial user data from localStorage
           setUser(userData);
           setIsAuthenticated(true);
+          
+          // Then fetch fresh data from database to check for updates
+          try {
+            const response = await fetch('/api/auth/me', {
+              headers: { 'x-user-id': userData.id },
+            });
+            if (response.ok) {
+              const data = await response.json();
+              if (data.user) {
+                // Check if role or permissions changed
+                const roleChanged = data.user.role.id !== userData.role.id;
+                const permissionsChanged = JSON.stringify(data.user.role.permissions.sort()) !== JSON.stringify(userData.role.permissions.sort());
+                
+                if (roleChanged) {
+                  console.log('🔄 Role updated in database, applying changes...');
+                  toast.success('Your role has been updated!');
+                  // Force re-render on role change
+                  setForceUpdate(prev => prev + 1);
+                  window.dispatchEvent(new Event('permissionsUpdated'));
+                } else if (permissionsChanged) {
+                  console.log('🔄 Permissions updated in database, applying changes...', {
+                    oldPerms: userData.role.permissions,
+                    newPerms: data.user.role.permissions
+                  });
+                  toast.success('Your permissions have been updated!');
+                  // Force re-render on permission change
+                  setForceUpdate(prev => prev + 1);
+                  window.dispatchEvent(new Event('permissionsUpdated'));
+                }
+                
+                // Always update with fresh data
+                setUser(data.user);
+                localStorage.setItem("admin_user", JSON.stringify(data.user));
+              }
+            }
+          } catch (error) {
+            console.error('Failed to fetch fresh user data:', error);
+          }
+          
           setIsLoading(false);
           return;
         } catch (error) {
@@ -143,9 +230,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (data.success && data.user) {
+        console.log('✅ Login successful:', {
+          name: data.user.name,
+          role: data.user.role.name,
+          slug: data.user.role.slug,
+          permissions: data.user.role.permissions,
+          hasPanelAccess: data.user.role.permissions.includes('panel.access')
+        });
+        
+        // Clear any old cached data first
+        localStorage.removeItem("admin_user");
+        
+        // Set fresh user data
         setUser(data.user);
         setIsAuthenticated(true);
         localStorage.setItem("admin_user", JSON.stringify(data.user));
+        
+        // Debug: set global variable for inspection
+        (window as any).__MONQUEST_DEBUG_USER__ = data.user;
+        
+        // Force trigger permission update event
+        setForceUpdate(prev => prev + 1);
+        window.dispatchEvent(new Event('permissionsUpdated'));
+        
         return { success: true };
       }
 
@@ -186,6 +293,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshUser = async () => {
+    if (!user) {
+      console.warn('⚠️ No user to refresh');
+      return;
+    }
+    
+    try {
+      console.log('🔄 Force refreshing user permissions...');
+      const response = await fetch('/api/auth/me', {
+        headers: { 'x-user-id': user.id }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.user) {
+          console.log('✅ User permissions refreshed:', {
+            oldPermissions: user.role.permissions,
+            newPermissions: data.user.role.permissions
+          });
+          setUser(data.user);
+          localStorage.setItem('admin_user', JSON.stringify(data.user));
+          // Force re-render all components that depend on permissions
+          setForceUpdate(prev => prev + 1);
+          window.dispatchEvent(new Event('permissionsUpdated'));
+          toast.success('Permissions refreshed!');
+        }
+      } else {
+        console.error('❌ Failed to refresh user:', response.status);
+      }
+    } catch (error) {
+      console.error('❌ Error refreshing user:', error);
+    }
+  };
+
   const logout = async () => {
     try {
       await fetch('/api/auth/logout', {
@@ -214,12 +355,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       loginWithWallet,
       logout,
+      refreshUser,
       hasPermission: (permission: string) => hasPermission(user as UserWithRole, permission),
       hasAnyPermission: (permissions: string[]) => hasAnyPermission(user as UserWithRole, permissions),
       hasAllPermissions: (permissions: string[]) => hasAllPermissions(user as UserWithRole, permissions),
       isSuperAdmin: () => isSuperAdmin(user as UserWithRole),
-      isAdmin: () => user?.role?.slug !== 'user',
-      isRegularUser: () => user?.role?.slug === 'user',
+      isAdmin: () => hasPermission(user as UserWithRole, 'panel.access'),
+      isRegularUser: () => !hasPermission(user as UserWithRole, 'panel.access'),
       privyReady,
       privyAuthenticated,
     }}>

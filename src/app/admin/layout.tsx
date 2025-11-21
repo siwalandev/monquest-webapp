@@ -2,6 +2,7 @@
 
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import LoadingPage from "@/components/LoadingPage";
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
@@ -13,23 +14,30 @@ function ProtectedLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Pages that should render without admin layout
+  const isStandalonePage = pathname === "/admin/login" || pathname === "/admin/unauthorized" || pathname === "/admin/forbidden" || pathname === "/admin/refresh-permissions";
+
+  // Redirect authenticated users away from login page
   useEffect(() => {
-    if (!isLoading && !isAuthenticated && pathname !== "/admin/login") {
-      router.push("/admin/login");
+    if (!isLoading && isAuthenticated && pathname === "/admin/login") {
+      router.replace('/admin');
     }
   }, [isAuthenticated, isLoading, router, pathname]);
 
-  if (pathname === "/admin/login") {
+  useEffect(() => {
+    if (!isStandalonePage && !isLoading && !isAuthenticated) {
+      router.push("/admin/login");
+    }
+  }, [isAuthenticated, isLoading, router, pathname, isStandalonePage]);
+
+  // Render standalone pages without layout
+  if (isStandalonePage) {
     return <>{children}</>;
   }
 
-  // Show loading while checking authentication
+  // Show loading page while checking authentication
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="text-gray-400">Loading...</div>
-      </div>
-    );
+    return <LoadingPage />;
   }
 
   if (!isAuthenticated) {

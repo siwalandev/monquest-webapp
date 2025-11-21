@@ -7,6 +7,7 @@ import Modal from "@/components/ui/Modal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import RoleBadge from "@/components/ui/RoleBadge";
 import StatusBadge from "@/components/ui/StatusBadge";
+import PermissionGuard from "@/components/PermissionGuard";
 import {
   IoAdd,
   IoCreate,
@@ -56,10 +57,23 @@ interface UserStats {
 }
 
 export default function UsersPage() {
-  const { user, isSuperAdmin } = useAuth();
+  const { user, isSuperAdmin, refreshUser } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
   const [stats, setStats] = useState<UserStats | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
+  const [, forceUpdate] = useState(0);
+
+  // Listen for permission updates
+  useEffect(() => {
+    const handlePermissionUpdate = () => {
+      console.log('🔄 UsersPage: Permissions updated, refreshing data...');
+      forceUpdate(prev => prev + 1);
+      setRefreshKey(k => k + 1);
+    };
+    
+    window.addEventListener('permissionsUpdated', handlePermissionUpdate);
+    return () => window.removeEventListener('permissionsUpdated', handlePermissionUpdate);
+  }, []);
 
   // User form modal
   const [userModalOpen, setUserModalOpen] = useState(false);
@@ -294,8 +308,28 @@ export default function UsersPage() {
         toast.success(
           editingUser ? "User updated successfully!" : "User created successfully!"
         );
+        
+        // If editing current logged-in user's role, refresh permissions immediately
+        if (editingUser && result.data.id === user?.id) {
+          await refreshUser();
+          console.log('🔄 Refreshed current user permissions after role change');
+        }
+        
+        // Reset form state
+        const defaultRole = roles.find(r => r.slug === 'admin');
+        setUserForm({
+          name: "",
+          email: "",
+          password: "",
+          roleId: defaultRole?.id || (roles[0]?.id || ""),
+          status: "ACTIVE",
+        });
+        setEditingUser(null);
         setUserModalOpen(false);
+        
+        // Refresh datatable and stats
         setRefreshKey((k) => k + 1);
+        fetchStats();
       } else {
         toast.error(result.error || "Failed to save user");
       }
@@ -383,6 +417,7 @@ export default function UsersPage() {
   };
 
   return (
+    <PermissionGuard permissions="users.view">
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center border-b-2 border-gray-800 pb-6">
@@ -672,5 +707,6 @@ export default function UsersPage() {
         variant="danger"
       />
     </div>
+    </PermissionGuard>
   );
 }

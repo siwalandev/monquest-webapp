@@ -11,7 +11,7 @@ interface WalletConnectButtonProps {
 }
 
 export default function WalletConnectButton({ size = "sm", variant = "primary", className = "" }: WalletConnectButtonProps) {
-  const { login, logout, ready, authenticated, user } = usePrivy();
+  const { login, logout, ready, authenticated, user, getAccessToken } = usePrivy();
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   // Get wallet address when user is authenticated

@@ -18,7 +18,7 @@ import {
   IoMenu,
   IoClose
 } from "react-icons/io5";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Helper function to get role badge styles
 const getRoleBadgeClass = (role: any) => {
@@ -56,6 +56,18 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
   const pathname = usePathname();
   const { logout, user, hasPermission } = useAuth();
   const [openMenus, setOpenMenus] = useState<string[]>(["content"]);
+  const [, forceUpdate] = useState(0); // Force re-render on permission changes
+  
+  // Listen for permission updates
+  useEffect(() => {
+    const handlePermissionUpdate = () => {
+      console.log('🔄 Sidebar: Permission updated, forcing re-render...');
+      forceUpdate(prev => prev + 1);
+    };
+    
+    window.addEventListener('permissionsUpdated', handlePermissionUpdate);
+    return () => window.removeEventListener('permissionsUpdated', handlePermissionUpdate);
+  }, []);
   
   const handleLinkClick = () => {
     // Close mobile sidebar when a link is clicked

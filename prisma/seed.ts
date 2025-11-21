@@ -5,6 +5,9 @@ const prisma = new PrismaClient();
 
 // Permission constants
 const PERMISSIONS = {
+  panel: [
+    'panel.access', // Required to access admin panel
+  ],
   users: [
     'users.view',
     'users.create',
@@ -66,6 +69,7 @@ async function main() {
     where: { slug: 'admin' },
     update: {
       permissions: [
+        ...PERMISSIONS.panel,
         ...PERMISSIONS.users.filter(p => p !== 'users.delete' && p !== 'users.manage_roles'),
         ...PERMISSIONS.content,
         ...PERMISSIONS.media,
@@ -79,6 +83,7 @@ async function main() {
       slug: 'admin',
       description: 'Administrative access with limited permissions',
       permissions: [
+        ...PERMISSIONS.panel,
         ...PERMISSIONS.users.filter(p => p !== 'users.delete' && p !== 'users.manage_roles'),
         ...PERMISSIONS.content,
         ...PERMISSIONS.media,
@@ -92,12 +97,19 @@ async function main() {
   // Create optional roles for flexibility
   const editorRole = await prisma.role.upsert({
     where: { slug: 'editor' },
-    update: {},
+    update: {
+      permissions: [
+        ...PERMISSIONS.panel, // ✅ Need panel.access to enter admin
+        ...PERMISSIONS.content,
+        ...PERMISSIONS.media,
+      ],
+    },
     create: {
       name: 'Editor',
       slug: 'editor',
       description: 'Content management access only',
       permissions: [
+        ...PERMISSIONS.panel, // ✅ Need panel.access to enter admin
         ...PERMISSIONS.content,
         ...PERMISSIONS.media,
       ],
@@ -107,12 +119,23 @@ async function main() {
 
   const viewerRole = await prisma.role.upsert({
     where: { slug: 'viewer' },
-    update: {},
+    update: {
+      permissions: [
+        ...PERMISSIONS.panel, // ✅ Need panel.access to enter admin
+        'users.view',
+        'roles.view',
+        'content.view',
+        'media.view',
+        'apiKeys.view',
+        'settings.view',
+      ],
+    },
     create: {
       name: 'Viewer',
       slug: 'viewer',
       description: 'Read-only access to all content',
       permissions: [
+        ...PERMISSIONS.panel, // ✅ Need panel.access to enter admin
         'users.view',
         'roles.view',
         'content.view',

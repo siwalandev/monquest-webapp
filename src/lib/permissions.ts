@@ -1,5 +1,8 @@
 // Permission constants (must match seed.ts and permissions API)
 export const PERMISSIONS = {
+  panel: [
+    "panel.access", // Required to access admin panel at all
+  ],
   users: [
     "users.view",
     "users.create",

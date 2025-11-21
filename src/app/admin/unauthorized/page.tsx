@@ -37,6 +37,14 @@ export default function UnauthorizedPage() {
         {/* Actions */}
         <div className="space-y-3">
           <button
+            onClick={() => router.push('/admin/refresh-permissions')}
+            className="w-full py-3 px-6 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+          >
+            <IoShieldCheckmarkOutline className="text-xl" />
+            Refresh My Permissions
+          </button>
+          
+          <button
             onClick={() => router.push('/')}
             className="w-full py-3 px-6 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
           >

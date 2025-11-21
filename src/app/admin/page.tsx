@@ -5,6 +5,7 @@ import Link from "next/link";
 import { IoDocument, IoImage, IoEye, IoPeople, IoTrendingUp, IoArrowForward, IoKey } from "react-icons/io5";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import toast from "react-hot-toast";
+import PermissionGuard from "@/components/PermissionGuard";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -99,6 +100,7 @@ export default function AdminDashboard() {
   ];
 
   return (
+    <PermissionGuard permissions="panel.access">
     <div className="space-y-8">
       {/* Header */}
       <div>
@@ -217,5 +219,6 @@ export default function AdminDashboard() {
         </div>
       </div>
     </div>
+    </PermissionGuard>
   );
 }

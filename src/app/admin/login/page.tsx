@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePrivy } from "@privy-io/react-auth";
+import LoadingPage from "@/components/LoadingPage";
 import { IoMail, IoLockClosed, IoGameController, IoWallet } from "react-icons/io5";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -13,17 +14,27 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [loginMethod, setLoginMethod] = useState<'email' | 'wallet'>('email');
     const [hasProcessedAuth, setHasProcessedAuth] = useState(false);
-    const { login, loginWithWallet, isAuthenticated, user, isRegularUser } = useAuth();
+    const { login, loginWithWallet, isAuthenticated, user, isRegularUser, isLoading: authLoading } = useAuth();
     const { login: privyLogin, ready: privyReady, authenticated, user: privyUser, getAccessToken } = usePrivy();
     const router = useRouter();
 
     // Redirect if already authenticated (use useEffect, not direct call in body)
     useEffect(() => {
         if (isAuthenticated && user) {
+            console.log('🔍 Login redirect check:', {
+                user: user.name,
+                role: user.role.name,
+                permissions: user.role.permissions,
+                hasPanelAccess: user.role.permissions.includes('panel.access'),
+                isRegularUser: isRegularUser()
+            });
+            
             // Regular users (non-admin) cannot access admin login page
             if (isRegularUser()) {
-                router.push("/");
+                console.log('⛔ User is regular user, redirecting to unauthorized');
+                router.replace("/admin/unauthorized");
             } else {
+                console.log('✅ User has admin access, redirecting to dashboard');
                 router.push("/admin");
             }
         }
@@ -150,6 +161,16 @@ export default function LoginPage() {
         }
     };
 
+    // Show loading page while checking authentication
+    if (authLoading) {
+        return <LoadingPage />;
+    }
+
+    // Don't render login form if already authenticated (prevent flash)
+    if (isAuthenticated) {
+        return <LoadingPage />;
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
             <Toaster position="top-right" />
@@ -166,7 +187,7 @@ export default function LoginPage() {
 
                 {/* Login Card */}
                 <div className="bg-gray-800 rounded-lg shadow-xl p-8 border border-gray-700">
-                    <h2 className="text-2xl font-bold text-white mb-6 text-center">Sign In</h2>
+                    <h2 className="text-2xl font-bold text-white mb-6">Sign In</h2>
 
                     {/* Login Method Toggle */}
                     <div className="flex gap-2 mb-6 p-1 bg-gray-700 rounded-lg">

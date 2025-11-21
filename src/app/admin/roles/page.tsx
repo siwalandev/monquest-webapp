@@ -6,6 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import Modal from "@/components/ui/Modal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import Accordion from "@/components/ui/Accordion";
+import PermissionGuard from "@/components/PermissionGuard";
 import {
   IoAdd,
   IoTrash,
@@ -51,10 +52,23 @@ interface RoleStats {
 }
 
 export default function RolesPage() {
-  const { hasPermission, isSuperAdmin } = useAuth();
+  const { hasPermission, isSuperAdmin, refreshUser } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
   const [stats, setStats] = useState<RoleStats | null>(null);
   const [permissionCategories, setPermissionCategories] = useState<PermissionCategory[]>([]);
+  const [, forceUpdate] = useState(0);
+
+  // Listen for permission updates
+  useEffect(() => {
+    const handlePermissionUpdate = () => {
+      console.log('🔄 RolesPage: Permissions updated, refreshing data...');
+      forceUpdate(prev => prev + 1);
+      setRefreshKey(k => k + 1);
+    };
+    
+    window.addEventListener('permissionsUpdated', handlePermissionUpdate);
+    return () => window.removeEventListener('permissionsUpdated', handlePermissionUpdate);
+  }, []);
 
   // Modal states
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
@@ -74,16 +88,9 @@ export default function RolesPage() {
   const canDelete = hasPermission("roles.delete") && isSuperAdmin();
 
   useEffect(() => {
-    if (!canView) {
-      toast.error("You don't have permission to view roles. Please logout and login again.");
-      setTimeout(() => {
-        window.location.href = "/admin";
-      }, 2000);
-      return;
-    }
     fetchStats();
     fetchPermissions();
-  }, [canView, refreshKey]);
+  }, [refreshKey]);
 
   const fetchStats = async () => {
     try {
@@ -267,6 +274,7 @@ export default function RolesPage() {
   };
 
   return (
+    <PermissionGuard permissions="roles.view">
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center border-b-2 border-gray-800 pb-6">
@@ -361,10 +369,13 @@ export default function RolesPage() {
           setSelectedRole(null);
         }}
         permissionCategories={permissionCategories}
-        onSuccess={() => {
+        refreshUserData={refreshUser}
+        onSuccess={(updatedRole) => {
+          // Update selectedRole dengan data terbaru
+          setSelectedRole(updatedRole);
+          // Refresh datatable dan stats
           setRefreshKey((k) => k + 1);
-          setShowEditModal(false);
-          setSelectedRole(null);
+          fetchStats();
         }}
       />
 
@@ -379,6 +390,7 @@ export default function RolesPage() {
         />
       )}
     </div>
+    </PermissionGuard>
   );
 }
 
@@ -687,13 +699,15 @@ function EditRoleModal({
   isOpen,
   onClose,
   permissionCategories,
+  refreshUserData,
   onSuccess,
 }: {
   role: Role | null;
   isOpen: boolean;
   onClose: () => void;
   permissionCategories: PermissionCategory[];
-  onSuccess: () => void;
+  refreshUserData: () => Promise<void>;
+  onSuccess: (updatedRole: Role) => void;
 }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -756,8 +770,19 @@ function EditRoleModal({
         throw new Error(data.error || "Failed to update role");
       }
 
+      const data = await response.json();
       toast.success("Role updated successfully!");
-      onSuccess();
+      
+      // Immediately refresh current user permissions
+      await refreshUserData();
+      
+      // Clear localStorage to force fresh permission check
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user');
+      }
+      
+      // Pass updated role data to parent
+      onSuccess(data.data);
     } catch (error: any) {
       console.error("Error updating role:", error);
       toast.error(error.message || "Failed to update role");
