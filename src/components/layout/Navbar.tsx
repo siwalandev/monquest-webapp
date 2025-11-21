@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import PixelButton from "@/components/ui/PixelButton";
+import WalletConnectButton from "@/components/WalletConnectButton";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -45,9 +45,7 @@ export default function Navbar() {
             >
               FAQ
             </Link>
-            <PixelButton size="sm" variant="primary">
-              Connect Wallet
-            </PixelButton>
+            <WalletConnectButton />
           </div>
 
           {/* Mobile Menu Button */}
@@ -90,9 +88,7 @@ export default function Navbar() {
             >
               FAQ
             </Link>
-            <PixelButton size="sm" variant="primary" className="w-full">
-              Connect Wallet
-            </PixelButton>
+            <WalletConnectButton />
           </div>
         )}
       </div>

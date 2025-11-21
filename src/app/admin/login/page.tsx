@@ -13,16 +13,21 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [loginMethod, setLoginMethod] = useState<'email' | 'wallet'>('email');
     const [hasProcessedAuth, setHasProcessedAuth] = useState(false);
-    const { login, loginWithWallet, isAuthenticated } = useAuth();
+    const { login, loginWithWallet, isAuthenticated, user, isRegularUser } = useAuth();
     const { login: privyLogin, ready: privyReady, authenticated, user: privyUser, getAccessToken } = usePrivy();
     const router = useRouter();
 
     // Redirect if already authenticated (use useEffect, not direct call in body)
     useEffect(() => {
-        if (isAuthenticated) {
-            router.push("/admin");
+        if (isAuthenticated && user) {
+            // Regular users (non-admin) cannot access admin login page
+            if (isRegularUser()) {
+                router.push("/");
+            } else {
+                router.push("/admin");
+            }
         }
-    }, [isAuthenticated, router]);
+    }, [isAuthenticated, user, isRegularUser, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

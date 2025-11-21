@@ -124,7 +124,20 @@ async function main() {
     },
   });
 
-  console.log('✅ Created roles:', superAdminRole.name, adminRole.name, editorRole.name, viewerRole.name);
+  // Create User role for regular website visitors (no admin access)
+  const userRole = await prisma.role.upsert({
+    where: { slug: 'user' },
+    update: {},
+    create: {
+      name: 'User',
+      slug: 'user',
+      description: 'Regular user with no admin panel access - homepage only',
+      permissions: [],
+      isSystem: false,
+    },
+  });
+
+  console.log('✅ Created roles:', superAdminRole.name, adminRole.name, editorRole.name, viewerRole.name, userRole.name);
 
   // Create default admin user
   const hashedPassword = await bcrypt.hash('admin123', 10);

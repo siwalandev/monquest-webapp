@@ -33,6 +33,8 @@ interface AuthContextType {
   hasAnyPermission: (permissions: string[]) => boolean;
   hasAllPermissions: (permissions: string[]) => boolean;
   isSuperAdmin: () => boolean;
+  isAdmin: () => boolean;
+  isRegularUser: () => boolean;
   // Privy authentication state
   privyReady: boolean;
   privyAuthenticated: boolean;
@@ -47,43 +49,82 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   
   // Privy hooks
-  const { ready: privyReady, authenticated: privyAuthenticated, user: privyUser, logout: privyLogout } = usePrivy();
+  const { ready: privyReady, authenticated: privyAuthenticated, user: privyUser, logout: privyLogout, getAccessToken } = usePrivy();
 
+  // Auto-sync with Privy authentication on mount
   useEffect(() => {
-    // Check if user is logged in from localStorage
-    const savedUser = localStorage.getItem("admin_user");
-    if (savedUser) {
-      try {
-        const userData = JSON.parse(savedUser);
-        
-        // Validate user data structure - IMPORTANT: Check if role has new structure with permissions
-        if (!userData.role || !userData.role.permissions || !Array.isArray(userData.role.permissions)) {
-          console.warn("⚠️ User data uses old role format. Logging out and clearing cache...");
-          console.warn("Please login again to get updated permissions.");
-          localStorage.removeItem("admin_user");
-          setUser(null);
-          setIsAuthenticated(false);
-          setIsLoading(false);
+    const syncAuth = async () => {
+      // First check localStorage
+      const savedUser = localStorage.getItem("admin_user");
+      if (savedUser) {
+        try {
+          const userData = JSON.parse(savedUser);
           
-          // Show alert to user
-          if (typeof window !== 'undefined') {
-            setTimeout(() => {
-              alert("Your session has expired due to a system update. Please login again.");
-              router.push("/admin/login");
-            }, 100);
+          // Validate user data structure
+          if (!userData.role || !userData.role.permissions || !Array.isArray(userData.role.permissions)) {
+            console.warn("⚠️ User data uses old role format. Logging out and clearing cache...");
+            localStorage.removeItem("admin_user");
+            setUser(null);
+            setIsAuthenticated(false);
+            setIsLoading(false);
+            return;
           }
+          
+          setUser(userData);
+          setIsAuthenticated(true);
+          setIsLoading(false);
           return;
+        } catch (error) {
+          console.error("Failed to parse saved user:", error);
+          localStorage.removeItem("admin_user");
         }
-        
-        setUser(userData);
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error("Failed to parse saved user:", error);
-        localStorage.removeItem("admin_user");
       }
-    }
-    setIsLoading(false);
-  }, [router]);
+
+      // If no saved user but Privy is authenticated, auto-login
+      if (privyReady && privyAuthenticated && privyUser) {
+        console.log("🔄 Auto-syncing Privy authentication...");
+        
+        try {
+          // Get wallet address
+          let walletAddress = privyUser.wallet?.address;
+          if (!walletAddress && privyUser.linkedAccounts) {
+            const walletAccount = privyUser.linkedAccounts.find(
+              (account: any) => account.type === 'wallet'
+            ) as any;
+            walletAddress = walletAccount?.address;
+          }
+
+          if (walletAddress) {
+            const accessToken = await getAccessToken();
+            if (accessToken) {
+              const message = `Sign in to Monquest Admin Panel\n\nWallet: ${walletAddress}\nTimestamp: ${Date.now()}`;
+              
+              // Auto-login with wallet
+              const response = await fetch('/api/auth/wallet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ walletAddress, signature: accessToken, message }),
+              });
+
+              const data = await response.json();
+              if (data.success && data.user) {
+                setUser(data.user);
+                setIsAuthenticated(true);
+                localStorage.setItem("admin_user", JSON.stringify(data.user));
+                console.log("✅ Auto-login successful");
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Auto-login error:", error);
+        }
+      }
+      
+      setIsLoading(false);
+    };
+
+    syncAuth();
+  }, [privyReady, privyAuthenticated, privyUser, getAccessToken]);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
@@ -177,6 +218,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasAnyPermission: (permissions: string[]) => hasAnyPermission(user as UserWithRole, permissions),
       hasAllPermissions: (permissions: string[]) => hasAllPermissions(user as UserWithRole, permissions),
       isSuperAdmin: () => isSuperAdmin(user as UserWithRole),
+      isAdmin: () => user?.role?.slug !== 'user',
+      isRegularUser: () => user?.role?.slug === 'user',
       privyReady,
       privyAuthenticated,
     }}>

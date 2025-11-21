@@ -45,29 +45,21 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // If user doesn't exist, create new user with default role
+    // If user doesn't exist, create new user with default USER role (not admin)
     if (!user) {
-      // Get default ADMIN role (or create one if not exists)
+      // Get default USER role for regular website visitors
       let defaultRole = await prisma.role.findUnique({
-        where: { slug: 'admin' },
+        where: { slug: 'user' },
       });
 
       if (!defaultRole) {
-        // Create default admin role if it doesn't exist
+        // Create user role if it doesn't exist
         defaultRole = await prisma.role.create({
           data: {
-            name: 'Admin',
-            slug: 'admin',
-            description: 'Default admin role for Web3 users',
-            permissions: [
-              'content.view',
-              'content.create',
-              'content.update',
-              'content.delete',
-              'users.view',
-              'media.view',
-              'media.upload',
-            ],
+            name: 'User',
+            slug: 'user',
+            description: 'Regular user with no admin access',
+            permissions: [],
             isSystem: false,
           },
         });
