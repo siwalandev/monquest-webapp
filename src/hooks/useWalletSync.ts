@@ -12,11 +12,7 @@ export function useWalletSync() {
   const hasAttemptedSync = useRef(false);
 
   useEffect(() => {
-    // Skip wallet sync on non-admin pages to prevent lag
-    const currentPath = window.location.pathname;
-    if (!currentPath.startsWith('/admin')) {
-      return;
-    }
+    console.log("🔍 useWalletSync check:", { ready, authenticated, hasUser: !!user });
     
     // Reset sync flag when user disconnects
     if (!authenticated) {
@@ -31,9 +27,12 @@ export function useWalletSync() {
 
     // Don't run if already attempted sync for this session
     if (hasAttemptedSync.current) {
+      console.log("⏭️ Sync already attempted this session");
       return;
     }
 
+    console.log("🚀 Starting wallet sync process...");
+    
     // Mark as attempted immediately to prevent duplicate calls
     hasAttemptedSync.current = true;
 
