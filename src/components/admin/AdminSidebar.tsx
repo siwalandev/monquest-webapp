@@ -29,7 +29,7 @@ export default function AdminSidebar() {
     },
     {
       id: "content",
-      title: "Content Management",
+      title: "Content",
       icon: <IoDocument className="text-xl" />,
       submenu: [
         { title: "Hero Section", href: "/admin/content/hero" },

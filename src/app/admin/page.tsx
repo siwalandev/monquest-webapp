@@ -1,48 +1,54 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { IoDocument, IoImage, IoEye, IoPeople, IoTrendingUp, IoArrowForward } from "react-icons/io5";
+import { IoDocument, IoImage, IoEye, IoPeople, IoTrendingUp, IoArrowForward, IoKey } from "react-icons/io5";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import toast from "react-hot-toast";
 
 export default function AdminDashboard() {
-  const stats = [
-    { 
-      label: "Total Content", 
-      value: "24", 
-      change: "+12%",
-      icon: <IoDocument className="text-2xl" />,
-      trend: "up"
-    },
-    { 
-      label: "Media Files", 
-      value: "156", 
-      change: "+8%",
-      icon: <IoImage className="text-2xl" />,
-      trend: "up"
-    },
-    { 
-      label: "Page Views", 
-      value: "12.5K", 
-      change: "+23%",
-      icon: <IoEye className="text-2xl" />,
-      trend: "up"
-    },
-    { 
-      label: "Active Users", 
-      value: "1.2K", 
-      change: "+5%",
-      icon: <IoPeople className="text-2xl" />,
-      trend: "up"
-    },
-  ];
+  const [stats, setStats] = useState({
+    totalContent: 0,
+    totalMedia: 0,
+    totalApiKeys: 0,
+    activeApiKeys: 0,
+  });
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const recentActivity = [
-    { action: "Hero Section updated", user: "Admin", time: "2 hours ago" },
-    { action: "New feature added", user: "Admin", time: "5 hours ago" },
-    { action: "FAQ section updated", user: "Admin", time: "1 day ago" },
-    { action: "Roadmap milestone added", user: "Admin", time: "2 days ago" },
-    { action: "Media files uploaded", user: "Admin", time: "3 days ago" },
-  ];
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch("/api/dashboard/stats");
+        const result = await response.json();
+        
+        if (result.success) {
+          setStats(result.data.stats);
+          setRecentActivity(result.data.recentActivity);
+        } else {
+          toast.error("Failed to load dashboard data");
+        }
+      } catch (error) {
+        console.error("Fetch dashboard data error:", error);
+        toast.error("Failed to load dashboard");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return "just now";
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  };
 
   const chartData = [
     { name: "Mon", views: 400, users: 240 },
@@ -61,6 +67,37 @@ export default function AdminDashboard() {
     { title: "API Settings", href: "/admin/settings/api-keys", icon: <IoTrendingUp /> },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-400">Loading dashboard...</div>
+      </div>
+    );
+  }
+
+  const statsDisplay = [
+    { 
+      label: "Total Content", 
+      value: stats.totalContent.toString(), 
+      icon: <IoDocument className="text-2xl" />,
+    },
+    { 
+      label: "Media Files", 
+      value: stats.totalMedia.toString(), 
+      icon: <IoImage className="text-2xl" />,
+    },
+    { 
+      label: "Total API Keys", 
+      value: stats.totalApiKeys.toString(), 
+      icon: <IoKey className="text-2xl" />,
+    },
+    { 
+      label: "Active API Keys", 
+      value: stats.activeApiKeys.toString(), 
+      icon: <IoTrendingUp className="text-2xl" />,
+    },
+  ];
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -75,13 +112,10 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
+        {statsDisplay.map((stat, index) => (
           <div key={index} className="bg-gray-900 border border-gray-800 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="text-gray-400">{stat.icon}</div>
-              <span className={`text-sm font-medium ${stat.trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
-                {stat.change}
-              </span>
             </div>
             <div className="text-3xl font-bold text-white mb-1">
               {stat.value}
@@ -162,17 +196,23 @@ export default function AdminDashboard() {
         <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
           <h2 className="text-xl font-bold text-white mb-6">Recent Activity</h2>
           <div className="space-y-4">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-start gap-3 pb-4 border-b border-gray-800 last:border-0">
-                <div className="w-2 h-2 bg-green-400 rounded-full mt-2"></div>
-                <div className="flex-1">
-                  <p className="text-white text-sm font-medium">{activity.action}</p>
-                  <p className="text-gray-400 text-xs mt-1">
-                    by {activity.user} • {activity.time}
-                  </p>
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-start gap-3 pb-4 border-b border-gray-800 last:border-0">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mt-2"></div>
+                  <div className="flex-1">
+                    <p className="text-white text-sm font-medium">
+                      {activity.action} on {activity.resource}
+                    </p>
+                    <p className="text-gray-400 text-xs mt-1">
+                      by {activity.user.name} • {formatTimeAgo(activity.createdAt)}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-gray-400 text-sm text-center py-4">No recent activity</p>
+            )}
           </div>
         </div>
       </div>

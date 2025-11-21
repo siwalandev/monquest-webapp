@@ -1,23 +1,74 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PixelCard from "@/components/ui/PixelCard";
 import PixelInput from "@/components/ui/PixelInput";
 import PixelTextarea from "@/components/ui/PixelTextarea";
 import PixelButton from "@/components/ui/PixelButton";
 import { IoSave, IoAdd, IoTrash } from "react-icons/io5";
-import featuresData from "@/data/features.json";
+import toast from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function FeaturesContentPage() {
-  const [formData, setFormData] = useState(featuresData);
+  const { user } = useAuth();
+  const [formData, setFormData] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await fetch("/api/content/features");
+        const result = await response.json();
+        
+        if (result.success) {
+          setFormData(result.data.data);
+        } else {
+          toast.error("Failed to load features content");
+        }
+      } catch (error) {
+        console.error("Fetch features content error:", error);
+        toast.error("Failed to load content");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, []);
 
   const handleSave = async () => {
+    if (!user) {
+      toast.error("User not authenticated");
+      return;
+    }
+
     setIsSaving(true);
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/content/features", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: formData,
+          userId: user.id,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success("Features saved successfully!");
+      } else {
+        toast.error(result.error || "Failed to save content");
+      }
+    } catch (error) {
+      console.error("Save features content error:", error);
+      toast.error("Failed to save content");
+    } finally {
       setIsSaving(false);
-      alert("Features saved successfully!");
-    }, 1000);
+    }
   };
 
   const handleFeatureChange = (index: number, field: string, value: string) => {
@@ -38,9 +89,25 @@ export default function FeaturesContentPage() {
   };
 
   const deleteFeature = (index: number) => {
-    const newItems = formData.items.filter((_, i) => i !== index);
+    const newItems = formData.items.filter((_: any, i: number) => i !== index);
     setFormData({ ...formData, items: newItems });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-pixel-light">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!formData) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-pixel-light">No content found</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -90,7 +157,7 @@ export default function FeaturesContentPage() {
 
       {/* Features List */}
       <div className="space-y-4">
-        {formData.items.map((feature, index) => (
+        {formData.items.map((feature: any, index: number) => (
           <PixelCard key={feature.id} glowColor={feature.color as "primary" | "secondary" | "accent"}>
             <div className="space-y-4">
               <div className="flex justify-between items-center">

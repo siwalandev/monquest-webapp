@@ -7,18 +7,27 @@ import { useRouter, usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
 
 function ProtectedLayout({ children }: { children: ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!isAuthenticated && pathname !== "/admin/login") {
+    if (!isLoading && !isAuthenticated && pathname !== "/admin/login") {
       router.push("/admin/login");
     }
-  }, [isAuthenticated, router, pathname]);
+  }, [isAuthenticated, isLoading, router, pathname]);
 
   if (pathname === "/admin/login") {
     return <>{children}</>;
+  }
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="text-gray-400">Loading...</div>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {

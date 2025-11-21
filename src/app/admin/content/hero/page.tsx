@@ -1,24 +1,75 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PixelCard from "@/components/ui/PixelCard";
 import PixelInput from "@/components/ui/PixelInput";
 import PixelTextarea from "@/components/ui/PixelTextarea";
 import PixelButton from "@/components/ui/PixelButton";
 import { IoSave, IoEye } from "react-icons/io5";
-import heroData from "@/data/hero.json";
+import toast from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function HeroContentPage() {
-  const [formData, setFormData] = useState(heroData);
+  const { user } = useAuth();
+  const [formData, setFormData] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch hero content from database
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await fetch("/api/content/hero");
+        const result = await response.json();
+        
+        if (result.success) {
+          setFormData(result.data.data);
+        } else {
+          toast.error("Failed to load hero content");
+        }
+      } catch (error) {
+        console.error("Fetch hero content error:", error);
+        toast.error("Failed to load content");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, []);
 
   const handleSave = async () => {
+    if (!user) {
+      toast.error("User not authenticated");
+      return;
+    }
+
     setIsSaving(true);
-    // TODO: Implement save to file/API
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/content/hero", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: formData,
+          userId: user.id,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success("Hero content saved successfully!");
+      } else {
+        toast.error(result.error || "Failed to save content");
+      }
+    } catch (error) {
+      console.error("Save hero content error:", error);
+      toast.error("Failed to save content");
+    } finally {
       setIsSaving(false);
-      alert("Hero content saved successfully!");
-    }, 1000);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -30,6 +81,22 @@ export default function HeroContentPage() {
     newStats[index] = { ...newStats[index], [field]: value };
     setFormData({ ...formData, stats: newStats });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-pixel-light">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!formData) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-pixel-light">No content found</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -129,7 +196,7 @@ export default function HeroContentPage() {
           </h2>
 
           <div className="grid grid-cols-2 gap-4">
-            {formData.stats.map((stat, index) => (
+            {formData.stats.map((stat: any, index: number) => (
               <div key={index} className="space-y-4 p-4 border-2 border-pixel-primary/30">
                 <h3 className="text-sm text-pixel-secondary font-pixel">
                   Stat #{index + 1}

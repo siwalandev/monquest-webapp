@@ -1,53 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DataTable } from "@/components/ui/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import { IoAdd, IoTrash, IoEye, IoEyeOff, IoCopy } from "react-icons/io5";
+import { IoAdd, IoTrash, IoEye, IoEyeOff, IoCopy, IoClose } from "react-icons/io5";
 import toast from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface APIKey {
   id: string;
   name: string;
   key: string;
-  environment: "Production" | "Development";
+  environment: "PRODUCTION" | "DEVELOPMENT" | "STAGING";
   createdAt: string;
-  lastUsed: string;
-  status: "Active" | "Inactive";
+  updatedAt: string;
+  status: "ACTIVE" | "INACTIVE";
+  user: {
+    name: string;
+    email: string;
+  };
 }
 
 export default function APIKeysPage() {
+  const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [showKey, setShowKey] = useState<Record<string, boolean>>({});
-  const [apiKeys, setApiKeys] = useState<APIKey[]>([
-    {
-      id: "1",
-      name: "Production API Key",
-      key: "mk_prod_1234567890abcdefghij",
-      environment: "Production",
-      createdAt: "2025-01-15",
-      lastUsed: "2 hours ago",
-      status: "Active",
-    },
-    {
-      id: "2",
-      name: "Development API Key",
-      key: "mk_dev_0987654321zyxwvutsrq",
-      environment: "Development",
-      createdAt: "2025-01-10",
-      lastUsed: "1 day ago",
-      status: "Active",
-    },
-    {
-      id: "3",
-      name: "Test API Key",
-      key: "mk_test_abcd1234efgh5678ijkl",
-      environment: "Development",
-      createdAt: "2025-01-05",
-      lastUsed: "3 days ago",
-      status: "Inactive",
-    },
-  ]);
+  const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    name: "",
+    environment: "DEVELOPMENT" as "PRODUCTION" | "DEVELOPMENT" | "STAGING",
+  });
+
+  // Fetch API keys
+  const fetchApiKeys = async () => {
+    try {
+      const response = await fetch("/api/api-keys");
+      const data = await response.json();
+      
+      if (data.success) {
+        setApiKeys(data.data);
+      } else {
+        toast.error("Failed to fetch API keys");
+      }
+    } catch (error) {
+      console.error("Fetch API keys error:", error);
+      toast.error("Failed to load API keys");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchApiKeys();
+  }, []);
 
   const toggleShowKey = (id: string) => {
     setShowKey((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -58,10 +64,84 @@ export default function APIKeysPage() {
     toast.success("API key copied to clipboard!");
   };
 
-  const deleteKey = (id: string) => {
-    if (confirm("Are you sure you want to delete this API key?")) {
-      setApiKeys(apiKeys.filter((key) => key.id !== id));
-      toast.success("API key deleted successfully!");
+  const deleteKey = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this API key?")) return;
+
+    try {
+      const response = await fetch(`/api/api-keys/${id}?userId=${user?.id}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("API key deleted successfully!");
+        fetchApiKeys();
+      } else {
+        toast.error(data.error || "Failed to delete API key");
+      }
+    } catch (error) {
+      console.error("Delete API key error:", error);
+      toast.error("Failed to delete API key");
+    }
+  };
+
+  const createApiKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!user) {
+      toast.error("User not authenticated");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/api-keys", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          environment: formData.environment,
+          userId: user.id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("API key created successfully!");
+        setShowModal(false);
+        setFormData({ name: "", environment: "DEVELOPMENT" });
+        fetchApiKeys();
+      } else {
+        toast.error(data.error || "Failed to create API key");
+      }
+    } catch (error) {
+      console.error("Create API key error:", error);
+      toast.error("Failed to create API key");
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const getEnvironmentColor = (env: string) => {
+    switch (env) {
+      case "PRODUCTION":
+        return "bg-red-500/10 text-red-400";
+      case "DEVELOPMENT":
+        return "bg-blue-500/10 text-blue-400";
+      case "STAGING":
+        return "bg-yellow-500/10 text-yellow-400";
+      default:
+        return "bg-gray-500/10 text-gray-400";
     }
   };
 
@@ -72,7 +152,9 @@ export default function APIKeysPage() {
       cell: ({ row }) => (
         <div>
           <div className="font-medium text-white">{row.original.name}</div>
-          <div className="text-xs text-gray-500">{row.original.environment}</div>
+          <div className="text-xs text-gray-500">
+            Created by {row.original.user.name}
+          </div>
         </div>
       ),
     },
@@ -102,14 +184,24 @@ export default function APIKeysPage() {
       ),
     },
     {
-      accessorKey: "createdAt",
-      header: "Created",
-      cell: ({ row }) => <div className="text-sm">{row.original.createdAt}</div>,
+      accessorKey: "environment",
+      header: "Environment",
+      cell: ({ row }) => (
+        <span
+          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getEnvironmentColor(
+            row.original.environment
+          )}`}
+        >
+          {row.original.environment}
+        </span>
+      ),
     },
     {
-      accessorKey: "lastUsed",
-      header: "Last Used",
-      cell: ({ row }) => <div className="text-sm">{row.original.lastUsed}</div>,
+      accessorKey: "createdAt",
+      header: "Created",
+      cell: ({ row }) => (
+        <div className="text-sm">{formatDate(row.original.createdAt)}</div>
+      ),
     },
     {
       accessorKey: "status",
@@ -117,7 +209,7 @@ export default function APIKeysPage() {
       cell: ({ row }) => (
         <span
           className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-            row.original.status === "Active"
+            row.original.status === "ACTIVE"
               ? "bg-green-500/10 text-green-400"
               : "bg-gray-500/10 text-gray-400"
           }`}
@@ -139,6 +231,14 @@ export default function APIKeysPage() {
       ),
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-400">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -168,13 +268,13 @@ export default function APIKeysPage() {
         <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
           <div className="text-gray-400 text-sm mb-2">Active Keys</div>
           <div className="text-3xl font-bold text-green-400">
-            {apiKeys.filter((k) => k.status === "Active").length}
+            {apiKeys.filter((k) => k.status === "ACTIVE").length}
           </div>
         </div>
         <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
           <div className="text-gray-400 text-sm mb-2">Inactive Keys</div>
           <div className="text-3xl font-bold text-gray-400">
-            {apiKeys.filter((k) => k.status === "Inactive").length}
+            {apiKeys.filter((k) => k.status === "INACTIVE").length}
           </div>
         </div>
       </div>
@@ -186,20 +286,73 @@ export default function APIKeysPage() {
         searchPlaceholder="Search API keys..."
       />
 
-      {/* Create Modal (simplified) */}
+      {/* Create Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold text-white mb-4">Create New API Key</h2>
-            <p className="text-gray-400 text-sm mb-4">
-              This feature will be implemented with backend integration.
-            </p>
-            <button
-              onClick={() => setShowModal(false)}
-              className="w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
-            >
-              Close
-            </button>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-white">Create New API Key</h2>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <IoClose className="text-2xl" />
+              </button>
+            </div>
+
+            <form onSubmit={createApiKey} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Key Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="e.g., Production API Key"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Environment
+                </label>
+                <select
+                  value={formData.environment}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      environment: e.target.value as any,
+                    })
+                  }
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="DEVELOPMENT">Development</option>
+                  <option value="STAGING">Staging</option>
+                  <option value="PRODUCTION">Production</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+                >
+                  Create
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

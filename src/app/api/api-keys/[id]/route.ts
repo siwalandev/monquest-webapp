@@ -4,11 +4,12 @@ import prisma from '@/lib/prisma';
 // GET - Get single API key
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const apiKey = await prisma.apiKey.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         user: {
           select: {
@@ -42,13 +43,14 @@ export async function GET(
 // PUT - Update API key
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { name, status, userId } = await request.json();
 
     const apiKey = await prisma.apiKey.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(name && { name }),
         ...(status && { status }),
@@ -92,14 +94,15 @@ export async function PUT(
 // DELETE - Delete API key
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
     const apiKey = await prisma.apiKey.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     // Log activity

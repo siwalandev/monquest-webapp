@@ -1,23 +1,74 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PixelCard from "@/components/ui/PixelCard";
 import PixelInput from "@/components/ui/PixelInput";
 import PixelTextarea from "@/components/ui/PixelTextarea";
 import PixelButton from "@/components/ui/PixelButton";
 import { IoSave, IoAdd, IoTrash } from "react-icons/io5";
-import howItWorksData from "@/data/howItWorks.json";
+import toast from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function HowItWorksContentPage() {
-  const [formData, setFormData] = useState(howItWorksData);
+  const { user } = useAuth();
+  const [formData, setFormData] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await fetch("/api/content/how-it-works");
+        const result = await response.json();
+        
+        if (result.success) {
+          setFormData(result.data.data);
+        } else {
+          toast.error("Failed to load how it works content");
+        }
+      } catch (error) {
+        console.error("Fetch how it works content error:", error);
+        toast.error("Failed to load content");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, []);
 
   const handleSave = async () => {
+    if (!user) {
+      toast.error("User not authenticated");
+      return;
+    }
+
     setIsSaving(true);
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/content/how-it-works", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: formData,
+          userId: user.id,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success("How It Works saved successfully!");
+      } else {
+        toast.error(result.error || "Failed to save content");
+      }
+    } catch (error) {
+      console.error("Save how it works content error:", error);
+      toast.error("Failed to save content");
+    } finally {
       setIsSaving(false);
-      alert("How It Works saved successfully!");
-    }, 1000);
+    }
   };
 
   const handleStepChange = (index: number, field: string, value: string) => {
@@ -38,9 +89,25 @@ export default function HowItWorksContentPage() {
   };
 
   const deleteStep = (index: number) => {
-    const newSteps = formData.steps.filter((_, i) => i !== index);
+    const newSteps = formData.steps.filter((_: any, i: number) => i !== index);
     setFormData({ ...formData, steps: newSteps });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-pixel-light">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!formData) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-pixel-light">No content found</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -90,7 +157,7 @@ export default function HowItWorksContentPage() {
 
       {/* Steps List */}
       <div className="space-y-4">
-        {formData.steps.map((step, index) => (
+        {formData.steps.map((step: any, index: number) => (
           <PixelCard key={step.id} glowColor="secondary">
             <div className="space-y-4">
               <div className="flex justify-between items-center">
