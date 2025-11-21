@@ -336,6 +336,7 @@ export default function RolesPage() {
         fetchUrl="/api/roles"
         searchPlaceholder="Search by name, slug, or description..."
         onRefresh={() => setRefreshKey((k) => k + 1)}
+        refreshTrigger={refreshKey}
       />
 
       {/* View Permissions Modal */}
@@ -376,6 +377,8 @@ export default function RolesPage() {
           // Refresh datatable dan stats
           setRefreshKey((k) => k + 1);
           fetchStats();
+          // Trigger force update untuk re-render semua komponen
+          forceUpdate((prev: number) => prev + 1);
         }}
       />
 
@@ -410,28 +413,37 @@ function ViewPermissionsModal({
   onClose: () => void;
   permissionCategories: PermissionCategory[];
 }) {
-  if (!role) return null;
+  const [currentRole, setCurrentRole] = useState<Role | null>(role);
+
+  // Update local state when role prop changes
+  useEffect(() => {
+    if (role && isOpen) {
+      setCurrentRole(role);
+    }
+  }, [role, isOpen]);
+
+  if (!currentRole) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`${role.name} Permissions`} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title={`${currentRole.name} Permissions`} size="lg">
       <div className="space-y-4">
         {/* Role Info */}
         <div className="bg-gray-800/50 border-2 border-gray-700 p-4 space-y-2">
-          {role.description && (
-            <p className="text-gray-300 text-sm">{role.description}</p>
+          {currentRole.description && (
+            <p className="text-gray-300 text-sm">{currentRole.description}</p>
           )}
           <div className="flex items-center gap-2">
             <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 border border-blue-500">
               <IoPeople className="inline mr-1" />
-              {role._count.users} users
+              {currentRole._count.users} users
             </span>
-            {role.isSystem && (
+            {currentRole.isSystem && (
               <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 border border-green-500">
                 SYSTEM ROLE
               </span>
             )}
             <code className="text-xs text-cyan-400 bg-cyan-500/10 px-2 py-1 border border-cyan-500/30">
-              {role.slug}
+              {currentRole.slug}
             </code>
           </div>
         </div>
@@ -439,7 +451,7 @@ function ViewPermissionsModal({
         {/* Permissions by Category */}
         {permissionCategories.map((category) => {
           const categoryPermissions = category.permissions.filter((p) =>
-            role.permissions.includes(p.key)
+            currentRole.permissions.includes(p.key)
           );
 
           if (categoryPermissions.length === 0) return null;
@@ -467,7 +479,7 @@ function ViewPermissionsModal({
           );
         })}
 
-        {role.permissions.length === 0 && (
+        {currentRole.permissions.length === 0 && (
           <div className="text-center py-8 text-gray-500">No permissions assigned</div>
         )}
       </div>
@@ -555,6 +567,11 @@ function AddRoleModal({
       setDescription("");
       setSelectedPermissions([]);
       onSuccess();
+      
+      // Close modal after brief delay
+      setTimeout(() => {
+        onClose();
+      }, 500);
     } catch (error: any) {
       console.error("Error creating role:", error);
       toast.error(error.message || "Failed to create role");
@@ -781,8 +798,13 @@ function EditRoleModal({
         localStorage.removeItem('user');
       }
       
-      // Pass updated role data to parent
+      // Pass updated role data to parent and close modal
       onSuccess(data.data);
+      
+      // Close modal after success
+      setTimeout(() => {
+        onClose();
+      }, 500);
     } catch (error: any) {
       console.error("Error updating role:", error);
       toast.error(error.message || "Failed to update role");

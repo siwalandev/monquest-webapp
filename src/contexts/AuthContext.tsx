@@ -317,7 +317,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Force re-render all components that depend on permissions
           setForceUpdate(prev => prev + 1);
           window.dispatchEvent(new Event('permissionsUpdated'));
-          toast.success('Permissions refreshed!');
+          // toast.success('Permissions refreshed!');
         }
       } else {
         console.error('❌ Failed to refresh user:', response.status);

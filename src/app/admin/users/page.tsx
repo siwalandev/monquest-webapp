@@ -325,11 +325,18 @@ export default function UsersPage() {
           status: "ACTIVE",
         });
         setEditingUser(null);
-        setUserModalOpen(false);
         
         // Refresh datatable and stats
         setRefreshKey((k) => k + 1);
         fetchStats();
+        
+        // Trigger force update
+        forceUpdate((prev: number) => prev + 1);
+        
+        // Auto-close modal after brief delay
+        setTimeout(() => {
+          setUserModalOpen(false);
+        }, 500);
       } else {
         toast.error(result.error || "Failed to save user");
       }
@@ -380,7 +387,11 @@ export default function UsersPage() {
 
       if (result.success) {
         toast.success("Password reset successfully!");
-        setResetPasswordOpen(false);
+        
+        // Auto-close modal after brief delay
+        setTimeout(() => {
+          setResetPasswordOpen(false);
+        }, 500);
       } else {
         toast.error(result.error || "Failed to reset password");
       }
@@ -405,8 +416,18 @@ export default function UsersPage() {
 
       if (result.success) {
         toast.success("User deleted successfully!");
-        setDeleteConfirm({ isOpen: false, user: null });
+        
+        // Refresh datatable and stats
         setRefreshKey((k) => k + 1);
+        fetchStats();
+        
+        // Trigger force update
+        forceUpdate((prev: number) => prev + 1);
+        
+        // Auto-close modal after brief delay
+        setTimeout(() => {
+          setDeleteConfirm({ isOpen: false, user: null });
+        }, 500);
       } else {
         toast.error(result.error || "Failed to delete user");
       }
@@ -480,11 +501,13 @@ export default function UsersPage() {
       )}
 
       {/* DataTable */}
+      {/* DataTable */}
       <ServerDataTable
         columns={columns}
         fetchUrl="/api/users"
         searchPlaceholder="Search by name or email..."
         onRefresh={() => setRefreshKey((k) => k + 1)}
+        refreshTrigger={refreshKey}
       />
 
       {/* User Form Modal */}

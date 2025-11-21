@@ -16,6 +16,7 @@ interface ServerDataTableProps<TData, TValue> {
   fetchUrl: string;
   searchPlaceholder?: string;
   onRefresh?: () => void;
+  refreshTrigger?: number; // Add external refresh trigger
 }
 
 interface FetchResponse<TData> {
@@ -34,6 +35,7 @@ export function ServerDataTable<TData, TValue>({
   fetchUrl,
   searchPlaceholder = "Search...",
   onRefresh,
+  refreshTrigger = 0,
 }: ServerDataTableProps<TData, TValue>) {
   const [data, setData] = useState<TData[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -61,7 +63,7 @@ export function ServerDataTable<TData, TValue>({
   // Fetch data
   useEffect(() => {
     fetchData();
-  }, [currentPage, pageSize, searchDebounce, sorting]);
+  }, [currentPage, pageSize, searchDebounce, sorting, refreshTrigger]); // Add refreshTrigger
 
   const fetchData = async () => {
     setIsLoading(true);
