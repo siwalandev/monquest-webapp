@@ -29,13 +29,25 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Get default user role
+    const userRole = await prisma.role.findFirst({
+      where: { name: 'User' }
+    });
+
+    if (!userRole) {
+      return NextResponse.json(
+        { error: 'Default role not found. Please contact administrator.' },
+        { status: 500 }
+      );
+    }
+
     // Create user
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         name,
-        role: 'ADMIN',
+        roleId: userRole.id,
       },
     });
 

@@ -12,6 +12,12 @@ export function useWalletSync() {
   const hasAttemptedSync = useRef(false);
 
   useEffect(() => {
+    // Skip wallet sync on non-admin pages to prevent lag
+    const currentPath = window.location.pathname;
+    if (!currentPath.startsWith('/admin')) {
+      return;
+    }
+    
     // Reset sync flag when user disconnects
     if (!authenticated) {
       hasAttemptedSync.current = false;

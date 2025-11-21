@@ -45,7 +45,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify password
+    // Verify password - check if password exists
+    if (!user.password) {
+      return NextResponse.json(
+        { error: 'Invalid account configuration. Please contact administrator.' },
+        { status: 500 }
+      );
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {

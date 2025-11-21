@@ -51,11 +51,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [forceUpdate, setForceUpdate] = useState(0); // Force re-render when permissions change
   const router = useRouter();
   
+  // Get current pathname to skip heavy operations on non-admin pages
+  const [currentPath, setCurrentPath] = useState('');
+  
+  useEffect(() => {
+    setCurrentPath(window.location.pathname);
+  }, []);
+  
   // Privy hooks
   const { ready: privyReady, authenticated: privyAuthenticated, user: privyUser, logout: privyLogout, getAccessToken } = usePrivy();
 
   // Periodic role check to detect database changes
   useEffect(() => {
+    // Skip polling for non-admin pages (404, landing page, etc)
+    if (!currentPath.startsWith('/admin')) return;
     if (!isAuthenticated || !user) return;
 
     const checkRoleUpdate = async () => {
@@ -98,9 +107,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Check every 10 seconds for faster permission sync
       const interval = setInterval(checkRoleUpdate, 10000);
       return () => clearInterval(interval);
-    }, [isAuthenticated, user]);  // Auto-sync with Privy authentication on mount
+    }, [isAuthenticated, user, currentPath]);  // Auto-sync with Privy authentication on mount
   useEffect(() => {
     const syncAuth = async () => {
+      // Skip auth checks for non-admin pages
+      if (!currentPath.startsWith('/admin') && currentPath !== '') {
+        setIsLoading(false);
+        return;
+      }
+      
       // First check localStorage
       const savedUser = localStorage.getItem("admin_user");
       if (savedUser) {
@@ -211,7 +226,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     syncAuth();
-  }, [privyReady, privyAuthenticated, privyUser, getAccessToken]);
+  }, [privyReady, privyAuthenticated, privyUser, getAccessToken, currentPath]);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {

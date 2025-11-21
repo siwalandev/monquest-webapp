@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "node -e \"const fs = require('fs'); const paths = ['node_modules/thread-stream/test', 'node_modules/@privy-io/react-auth/node_modules/thread-stream/test', 'node_modules/thread-stream/bench.js', 'node_modules/@privy-io/react-auth/node_modules/thread-stream/bench.js', 'node_modules/thread-stream/LICENSE', 'node_modules/@privy-io/react-auth/node_modules/thread-stream/LICENSE', 'node_modules/thread-stream/README.md', 'node_modules/@privy-io/react-auth/node_modules/thread-stream/README.md']; paths.forEach(p => { try { if (fs.existsSync(p)) fs.rmSync(p, {recursive: true, force: true}); } catch(e) {} });\"",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
     "prisma:seed": "tsx prisma/seed.ts",
@@ -44,7 +45,7 @@
     "bcrypt": "^6.0.0",
     "date-fns": "^4.1.0",
     "nanoid": "^5.1.6",
-    "next": "^16.0.3",
+    "next": "15.1.4",
     "postcss": "^8.5.6",
     "prisma": "^6.19.0",
     "react": "^19.2.0",
@@ -62,7 +63,12 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "cross-env": "^10.1.0",
+    "ignore-loader": "^0.1.2",
+    "tap": "^21.1.5",
+    "tape": "^5.9.0",
     "ts-node": "^10.9.2",
-    "tsx": "^4.20.6"
+    "tsx": "^4.20.6",
+    "why-is-node-running": "^3.2.2"
   }
 }
