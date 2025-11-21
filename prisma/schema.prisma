@@ -1,0 +1,148 @@
+// Monquest Admin Panel - Database Schema
+// MySQL database with Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Roles dengan permission system
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  permissions Json     // Array of permission keys stored as JSON
+  isSystem    Boolean  @default(false) // true for SUPER_ADMIN, ADMIN
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users User[]
+
+  @@index([slug])
+  @@map("roles")
+}
+
+// Admin Users
+model User {
+  id              String    @id @default(cuid())
+  email           String?   @unique // Optional for Web3-only users
+  password        String?   // bcrypt hashed - Optional for Web3 auth
+  name            String
+  roleId          String
+  status          Status    @default(ACTIVE)
+  lastLogin       DateTime?
+  
+  // Web3 Authentication Fields
+  walletAddress   String?   @unique // Primary wallet for Web3 auth
+  privyId         String?   @unique // Privy user ID
+  authMethod      AuthMethod @default(EMAIL) // EMAIL, WEB3, or HYBRID
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  role         Role          @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  apiKeys      ApiKey[]
+  activityLogs ActivityLog[]
+  media        Media[]
+
+  @@index([roleId])
+  @@index([walletAddress])
+  @@index([privyId])
+  @@map("users")
+}
+
+enum AuthMethod {
+  EMAIL     // Traditional email/password
+  WEB3      // Web3 wallet only
+  HYBRID    // Both email and wallet linked
+}
+
+// API Keys untuk external integrations
+model ApiKey {
+  id          String      @id @default(cuid())
+  name        String
+  key         String      @unique
+  environment Environment @default(DEVELOPMENT)
+  status      Status      @default(ACTIVE)
+  lastUsed    DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+enum Environment {
+  PRODUCTION
+  DEVELOPMENT
+  STAGING
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+// Dynamic Content (Hero, Features, How It Works, dll)
+model Content {
+  id        String      @id @default(cuid())
+  type      ContentType @unique
+  data      Json        // Store as JSON
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("contents")
+}
+
+enum ContentType {
+  HERO
+  FEATURES
+  HOW_IT_WORKS
+  ROADMAP
+  FAQ
+  STATS
+}
+
+// Media Files
+model Media {
+  id        String   @id @default(cuid())
+  filename  String
+  path      String
+  size      Int      // in bytes
+  mimeType  String
+  alt       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  uploadedBy String
+  user       User   @relation(fields: [uploadedBy], references: [id])
+
+  @@map("media")
+}
+
+// Activity Log untuk audit trail
+model ActivityLog {
+  id        String   @id @default(cuid())
+  action    String   // "created", "updated", "deleted"
+  resource  String   // "api_key", "content", "media"
+  resourceId String?
+  details   Json?    // Additional details as JSON
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
+}

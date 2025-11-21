@@ -3,6 +3,8 @@
 import { WagmiProvider, createConfig, http } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { defineChain } from "viem";
+import { PrivyProvider } from "@/providers/PrivyProvider";
+import { useWalletSync } from "@/hooks/useWalletSync";
 
 // Define Monad chain (menggunakan testnet dulu untuk development)
 export const monad = defineChain({
@@ -36,12 +38,24 @@ const config = createConfig({
 
 const queryClient = new QueryClient();
 
+// Inner component to use hooks
+function ProvidersInner({ children }: { children: React.ReactNode }) {
+  // Auto-sync wallet to database on any page
+  useWalletSync();
+  
+  return <>{children}</>;
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    </WagmiProvider>
+    <PrivyProvider>
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <ProvidersInner>
+            {children}
+          </ProvidersInner>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </PrivyProvider>
   );
 }

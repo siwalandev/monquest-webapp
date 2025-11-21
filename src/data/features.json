@@ -1,0 +1,48 @@
+{
+  "title": "Game Features",
+  "subtitle": "Experience the ultimate tower defense adventure with blockchain technology",
+  "items": [
+    {
+      "id": "1",
+      "icon": "IoHome",
+      "title": "Strategic Defense",
+      "description": "Build and upgrade towers with unique abilities. Plan your defense strategy carefully!",
+      "color": "primary"
+    },
+    {
+      "id": "2",
+      "icon": "IoShield",
+      "title": "Epic Battles",
+      "description": "Fight against waves of monsters with increasing difficulty. Boss battles await!",
+      "color": "secondary"
+    },
+    {
+      "id": "3",
+      "icon": "IoColorPalette",
+      "title": "Pixel-Art Beauty",
+      "description": "Stunning retro pixel-art graphics with smooth animations and vibrant colors.",
+      "color": "accent"
+    },
+    {
+      "id": "4",
+      "icon": "IoDiamond",
+      "title": "NFT Assets",
+      "description": "Own your towers, heroes, and items as NFTs. Trade on the marketplace!",
+      "color": "primary"
+    },
+    {
+      "id": "5",
+      "icon": "IoTrophy",
+      "title": "Compete & Earn",
+      "description": "Climb the leaderboard and earn rewards. Play-to-earn on Monad blockchain.",
+      "color": "secondary"
+    },
+    {
+      "id": "6",
+      "icon": "IoEarth",
+      "title": "Nusantara Theme",
+      "description": "Explore archipelago-inspired maps with unique cultural elements and lore.",
+      "color": "accent"
+    }
+  ]
+}

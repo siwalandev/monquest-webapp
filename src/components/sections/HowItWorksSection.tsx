@@ -1,32 +1,72 @@
-import PixelCard from "@/components/ui/PixelCard";
+"use client";
 
-export default function HowItWorksSection() {
-  const steps = [
-    {
-      number: "1",
-      title: "Connect Wallet",
-      description: "Connect your Web3 wallet to access the game on Monad blockchain.",
-      icon: "🔗",
-    },
-    {
-      number: "2",
-      title: "Choose Your Path",
-      description: "Select your starting hero and receive your first tower NFTs.",
-      icon: "🎯",
-    },
-    {
-      number: "3",
-      title: "Build & Defend",
-      description: "Place towers strategically and defend against monster waves.",
-      icon: "🏗️",
-    },
-    {
-      number: "4",
-      title: "Earn & Upgrade",
-      description: "Collect rewards, upgrade towers, and mint rare NFT items.",
-      icon: "⬆️",
-    },
-  ];
+import { useState, useEffect } from "react";
+import PixelCard from "@/components/ui/PixelCard";
+import * as Icons from 'react-icons/io5';
+
+interface Step {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  order: number;
+  number?: string; // Backward compatibility
+}
+
+interface HowItWorksData {
+  title: string;
+  subtitle: string;
+  steps: Step[];
+}
+
+interface HowItWorksSectionProps {
+  initialData?: HowItWorksData | null;
+}
+
+export default function HowItWorksSection({ initialData }: HowItWorksSectionProps) {
+  const [howItWorksData, setHowItWorksData] = useState<HowItWorksData | null>(initialData || null);
+  const [isLoading, setIsLoading] = useState(!initialData);
+
+  useEffect(() => {
+    // Only fetch if no initial data provided (client-side fallback)
+    if (!initialData) {
+      const fetchContent = async () => {
+        try {
+          const response = await fetch('/api/public/content');
+          const result = await response.json();
+          
+          if (result.success && result.data.howItWorks) {
+            setHowItWorksData(result.data.howItWorks);
+          }
+        } catch (error) {
+          console.error('Failed to fetch how it works content:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchContent();
+    }
+  }, [initialData]);
+
+  const getIcon = (iconName: string) => {
+    const Icon = (Icons as any)[iconName];
+    return Icon ? <Icon className="text-4xl" /> : <Icons.IoLink className="text-4xl" />;
+  };
+
+  if (isLoading) {
+    return (
+      <section id="how-it-works" className="py-20 px-4">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="text-pixel-light animate-pulse">Loading steps...</div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!howItWorksData) {
+    return null;
+  }
 
   return (
     <section id="how-it-works" className="py-20 px-4">
@@ -34,31 +74,31 @@ export default function HowItWorksSection() {
         {/* Section Header */}
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-3xl md:text-5xl text-pixel-primary font-pixel text-shadow-pixel">
-            How It Works
+            {howItWorksData.title}
           </h2>
           <p className="text-sm md:text-base text-pixel-light/70 max-w-2xl mx-auto">
-            Start your adventure in just 4 simple steps
+            {howItWorksData.subtitle}
           </p>
         </div>
 
         {/* Steps */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {steps.map((step, index) => (
-            <div key={index} className="relative">
+          {howItWorksData.steps.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((step, index) => (
+            <div key={step.id} className="relative h-full">
               {/* Connector Line (hidden on mobile, shown on desktop) */}
-              {index < steps.length - 1 && (
+              {index < howItWorksData.steps.length - 1 && (
                 <div className="hidden lg:block absolute top-12 left-full w-full h-1 bg-pixel-primary/30 -z-10" />
               )}
 
-              <PixelCard glowColor="secondary">
-                <div className="space-y-4 text-center">
+              <PixelCard glowColor="secondary" className="h-full">
+                <div className="space-y-4 text-center flex flex-col h-full">
                   {/* Step Number */}
-                  <div className="inline-block bg-pixel-primary text-pixel-darker font-pixel text-2xl w-12 h-12 flex items-center justify-center border-2 border-pixel-dark">
-                    {step.number}
+                  <div className="inline-block bg-pixel-primary text-pixel-darker font-pixel text-2xl w-12 h-12 flex items-center justify-center border-2 border-pixel-dark mx-auto">
+                    {step.number || (index + 1)}
                   </div>
 
                   {/* Icon */}
-                  <div className="text-4xl">{step.icon}</div>
+                  <div className="flex justify-center">{getIcon(step.icon)}</div>
 
                   {/* Title */}
                   <h3 className="text-base text-pixel-primary font-pixel">
@@ -66,7 +106,7 @@ export default function HowItWorksSection() {
                   </h3>
 
                   {/* Description */}
-                  <p className="text-xs text-pixel-light/70 leading-relaxed">
+                  <p className="text-xs text-pixel-light/70 leading-relaxed flex-grow">
                     {step.description}
                   </p>
                 </div>

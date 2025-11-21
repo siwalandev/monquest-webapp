@@ -1,0 +1,19 @@
+{
+  "title": "MONQUEST",
+  "subtitle": "Defend Your Kingdom in Epic Pixel-Art Tower Defense",
+  "description": "Build towers, summon heroes, and conquer waves of monsters on the Monad blockchain. Earn NFTs, collect rare items, and climb the leaderboard in this play-to-earn adventure!",
+  "ctaPrimary": {
+    "text": "Play Now",
+    "icon": "IoGameController"
+  },
+  "ctaSecondary": {
+    "text": "Learn More",
+    "icon": "IoBook"
+  },
+  "stats": [
+    { "value": "1000+", "label": "Players" },
+    { "value": "50+", "label": "Unique Towers" },
+    { "value": "100+", "label": "NFT Items" },
+    { "value": "24/7", "label": "Online" }
+  ]
+}
