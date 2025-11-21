@@ -1,0 +1,48 @@
+/* Import pixel font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --pixel-primary: #4ADE80;
+  --pixel-secondary: #60A5FA;
+  --pixel-accent: #FB923C;
+  --pixel-dark: #1E293B;
+  --pixel-darker: #0F172A;
+}
+
+body {
+  background-color: var(--pixel-darker);
+  color: var(--pixel-primary);
+}
+
+/* Pixel-art styling utilities */
+.pixel-borders {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.text-shadow-pixel {
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Custom scrollbar pixel style */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--pixel-darker);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--pixel-primary);
+  border: 2px solid var(--pixel-darker);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pixel-secondary);
+}
