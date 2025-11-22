@@ -1,6 +1,7 @@
 "use client";
 
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import AdminTopBar from "@/components/admin/AdminTopBar";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import LoadingPage from "@/components/LoadingPage";
 import { ReactNode, useEffect, useState } from "react";
@@ -61,20 +62,16 @@ function ProtectedLayout({ children }: { children: ReactNode }) {
         <div className="flex-1 flex items-center justify-center">
           <span className="text-lg font-bold text-white">MONQUEST</span>
         </div>
-        
-        {/* User Avatar on Mobile */}
-        {user && (
-          <div className="w-8 h-8 bg-pixel-primary rounded-full flex items-center justify-center text-white font-bold text-sm ring-2 ring-pixel-primary/30">
-            {user.name.charAt(0).toUpperCase()}
-          </div>
-        )}
       </header>
       
       {/* Sidebar */}
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
+      {/* Top Bar */}
+      <AdminTopBar />
+      
       {/* Main Content */}
-      <main className="flex-1 p-4 pt-20 sm:p-6 sm:pt-20 lg:p-8 lg:pt-8 lg:ml-64">
+      <main className="flex-1 p-4 pt-20 sm:p-6 sm:pt-20 lg:p-8 lg:pt-20 lg:ml-64">
         <div className="max-w-7xl mx-auto">
           {children}
         </div>

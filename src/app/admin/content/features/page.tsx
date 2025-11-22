@@ -8,7 +8,7 @@ import Modal from "@/components/ui/Modal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import IconPicker from "@/components/ui/IconPicker";
 import ColorSelector from "@/components/ui/ColorSelector";
-import { IoAdd } from "react-icons/io5";
+import { IoAdd, IoSave } from "react-icons/io5";
 import * as Icons from "react-icons/io5";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -198,13 +198,22 @@ export default function FeaturesContentPage() {
           <h1 className="text-3xl text-white font-bold mb-2">Manage Features</h1>
           <p className="text-sm text-gray-400">Drag to reorder, click to edit or delete</p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100"
-        >
-          <IoAdd className="text-xl" />
-          Add Feature
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => saveFeatures(features)}
+            className="flex items-center gap-2 px-4 py-2 bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
+          >
+            <IoSave className="text-xl" />
+            Save
+          </button>
+          <button
+            onClick={openAddModal}
+            className="flex items-center gap-2 px-4 py-2 bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
+          >
+            <IoAdd className="text-xl" />
+            Add Feature
+          </button>
+        </div>
       </div>
 
       {/* Features List */}
@@ -213,7 +222,7 @@ export default function FeaturesContentPage() {
           <p className="text-gray-400 mb-4">No features yet</p>
           <button
             onClick={openAddModal}
-            className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100"
+            className="px-4 py-2 bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
           >
             Add First Feature
           </button>
@@ -230,10 +239,10 @@ export default function FeaturesContentPage() {
                   onDelete={() => setDeleteConfirm({ isOpen: true, feature })}
                 >
                   <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-lg ${
-                      feature.color === 'primary' ? 'bg-green-500/10 text-green-400' :
-                      feature.color === 'secondary' ? 'bg-blue-500/10 text-blue-400' :
-                      'bg-orange-500/10 text-orange-400'
+                    <div className={`p-3 rounded-lg bg-gray-800 ${
+                      feature.color === 'primary' ? 'text-pixel-primary' :
+                      feature.color === 'secondary' ? 'text-pixel-secondary' :
+                      'text-pixel-accent'
                     }`}>
                       {getIcon(feature.icon)}
                     </div>
@@ -265,7 +274,7 @@ export default function FeaturesContentPage() {
             </button>
             <button
               onClick={handleSubmit}
-              className="px-4 py-2 text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100"
+              className="px-4 py-2 text-sm font-medium bg-pixel-primary hover:brightness-110 text-white transition-all duration-100"
             >
               {editingFeature ? "Update" : "Add"} Feature
             </button>
@@ -292,7 +301,7 @@ export default function FeaturesContentPage() {
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               placeholder="Enter feature title"
             />
           </div>
@@ -304,7 +313,7 @@ export default function FeaturesContentPage() {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={4}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100 resize-none"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100 resize-none"
               placeholder="Enter feature description"
             />
           </div>

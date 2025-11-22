@@ -230,7 +230,7 @@ export default function HowItWorksContentPage() {
           <button
             onClick={() => saveHowItWorksData()}
             disabled={isSaving}
-            className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100 disabled:opacity-50"
           >
             <IoSave className="text-xl" />
             {isSaving ? "Saving..." : "Save Changes"}
@@ -250,7 +250,7 @@ export default function HowItWorksContentPage() {
             onChange={(e) =>
               setHowItWorksData({ ...howItWorksData, title: e.target.value })
             }
-            className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+            className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
             placeholder="How It Works"
           />
         </div>
@@ -263,7 +263,7 @@ export default function HowItWorksContentPage() {
             onChange={(e) =>
               setHowItWorksData({ ...howItWorksData, subtitle: e.target.value })
             }
-            className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+            className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
             placeholder="Start your adventure in just 4 simple steps"
           />
         </div>
@@ -277,7 +277,7 @@ export default function HowItWorksContentPage() {
           </h2>
           <button
             onClick={openAddStepModal}
-            className="flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-all duration-100"
+            className="flex items-center gap-2 px-3 py-1.5 bg-pixel-primary hover:brightness-110 text-white text-sm font-medium transition-all duration-100"
           >
             <IoAdd className="text-lg" />
             Add Step
@@ -289,7 +289,7 @@ export default function HowItWorksContentPage() {
             <p className="text-gray-500 mb-4">No steps yet. Add your first step!</p>
             <button
               onClick={openAddStepModal}
-              className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100"
+              className="px-4 py-2 bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
             >
               Add First Step
             </button>
@@ -313,7 +313,7 @@ export default function HowItWorksContentPage() {
                     onDelete={() => setDeleteConfirm({ isOpen: true, step })}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="flex items-center justify-center w-10 h-10 bg-green-500/20 text-green-400 font-bold text-lg rounded">
+                      <div className="flex items-center justify-center w-10 h-10 bg-gray-800 text-pixel-primary font-bold text-lg rounded">
                         {index + 1}
                       </div>
                       <div className="p-3 bg-gray-800/50 rounded">
@@ -348,7 +348,7 @@ export default function HowItWorksContentPage() {
             </button>
             <button
               onClick={handleStepSubmit}
-              className="px-4 py-2 text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100"
+              className="px-4 py-2 text-sm font-medium bg-pixel-primary hover:brightness-110 text-white transition-all duration-100"
             >
               {editingStep ? "Update" : "Add"} Step
             </button>
@@ -373,7 +373,7 @@ export default function HowItWorksContentPage() {
               type="text"
               value={stepForm.title}
               onChange={(e) => setStepForm({ ...stepForm, title: e.target.value })}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               placeholder="Connect Wallet"
             />
           </div>
@@ -386,7 +386,7 @@ export default function HowItWorksContentPage() {
               value={stepForm.description}
               onChange={(e) => setStepForm({ ...stepForm, description: e.target.value })}
               rows={4}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100 resize-none"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100 resize-none"
               placeholder="Connect your Web3 wallet to access the game..."
             />
           </div>

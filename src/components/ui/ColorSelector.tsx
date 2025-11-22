@@ -16,9 +16,9 @@ export default function ColorSelector({ value, onChange }: ColorSelectorProps) {
             className={`
               p-3 border-2 transition-all duration-100 text-sm font-medium capitalize
               ${value === color
-                ? color === 'primary' ? 'border-green-500 bg-green-500/10 text-green-400' :
-                  color === 'secondary' ? 'border-blue-500 bg-blue-500/10 text-blue-400' :
-                  'border-orange-500 bg-orange-500/10 text-orange-400'
+                ? color === 'primary' ? 'border-pixel-primary bg-pixel-primary/10 text-pixel-primary' :
+                  color === 'secondary' ? 'border-pixel-secondary bg-pixel-secondary/10 text-pixel-secondary' :
+                  'border-pixel-accent bg-pixel-accent/10 text-pixel-accent'
                 : 'border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600'
               }
             `}

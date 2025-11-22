@@ -667,7 +667,7 @@ function AddRoleModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Content Editor"
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-pixel-primary transition-colors duration-100"
               required
             />
           </div>
@@ -688,7 +688,7 @@ function AddRoleModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief description of this role"
               rows={3}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors duration-100 resize-none"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-pixel-primary transition-colors duration-100 resize-none"
             />
           </div>
         </div>
@@ -909,7 +909,7 @@ function EditRoleModal({
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:outline-none focus:border-green-500 transition-colors duration-100"
+                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:outline-none focus:border-pixel-primary transition-colors duration-100"
                 required
               />
             </div>
@@ -929,7 +929,7 @@ function EditRoleModal({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors duration-100 resize-none"
+                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-pixel-primary transition-colors duration-100 resize-none"
               />
             </div>
           </div>
@@ -1023,7 +1023,7 @@ function DeleteRoleConfirmModal({
               <select
                 value={targetRoleId}
                 onChange={(e) => setTargetRoleId(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:outline-none focus:border-green-500 transition-colors duration-100"
+                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:outline-none focus:border-pixel-primary transition-colors duration-100"
                 required={requiresReassignment}
               >
                 <option value="">Select a role...</option>

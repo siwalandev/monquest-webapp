@@ -206,7 +206,7 @@ export default function UsersPage() {
             <button
               onClick={() => openEditUserModal(row.original)}
               disabled={!canEdit}
-              className="p-2 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 transition-all duration-100 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="p-2 text-pixel-secondary hover:bg-pixel-secondary/10 hover:brightness-110 transition-all duration-100 disabled:opacity-30 disabled:cursor-not-allowed"
               title={canEdit ? "Edit user" : "No permission"}
             >
               <IoCreate className="text-lg" />
@@ -469,30 +469,30 @@ export default function UsersPage() {
 
           <div className="bg-gray-900 border-2 border-gray-800 p-4 animate-fadeIn">
             <div className="flex items-center gap-3 mb-2">
-              <IoCheckmarkCircle className="text-2xl text-green-400" />
+              <IoCheckmarkCircle className="text-2xl text-pixel-primary" />
               <div className="text-sm text-gray-400">Active Users</div>
             </div>
-            <div className="text-2xl font-bold text-green-400">
+            <div className="text-2xl font-bold text-pixel-primary">
               {stats.activeUsers}
             </div>
           </div>
 
           <div className="bg-gray-900 border-2 border-gray-800 p-4 animate-fadeIn">
             <div className="flex items-center gap-3 mb-2">
-              <IoShield className="text-2xl text-blue-400" />
+              <IoShield className="text-2xl text-pixel-secondary" />
               <div className="text-sm text-gray-400">Admins</div>
             </div>
-            <div className="text-2xl font-bold text-blue-400">
+            <div className="text-2xl font-bold text-pixel-secondary">
               {stats.adminCount}
             </div>
           </div>
 
           <div className="bg-gray-900 border-2 border-gray-800 p-4 animate-fadeIn">
             <div className="flex items-center gap-3 mb-2">
-              <IoShieldCheckmark className="text-2xl text-green-400" />
+              <IoShieldCheckmark className="text-2xl text-pixel-primary" />
               <div className="text-sm text-gray-400">Super Admins</div>
             </div>
-            <div className="text-2xl font-bold text-green-400">
+            <div className="text-2xl font-bold text-pixel-primary">
               {stats.superAdminCount}
             </div>
           </div>
@@ -541,7 +541,7 @@ export default function UsersPage() {
               type="text"
               value={userForm.name}
               onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               placeholder="John Doe"
             />
           </div>
@@ -554,7 +554,7 @@ export default function UsersPage() {
               type="email"
               value={userForm.email}
               onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               placeholder="john@example.com"
             />
           </div>
@@ -571,7 +571,7 @@ export default function UsersPage() {
                 onChange={(e) =>
                   setUserForm({ ...userForm, password: e.target.value })
                 }
-                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
                 placeholder="Min. 8 characters"
               />
               <button
@@ -596,7 +596,7 @@ export default function UsersPage() {
                   roleId: e.target.value,
                 })
               }
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
             >
               {roles.map((role) => (
                 <option key={role.id} value={role.id}>
@@ -619,7 +619,7 @@ export default function UsersPage() {
                     status: e.target.value as "ACTIVE" | "INACTIVE",
                   })
                 }
-                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               >
                 <option value="ACTIVE">Active</option>
                 <option value="INACTIVE">Inactive</option>
@@ -673,7 +673,7 @@ export default function UsersPage() {
                 type={showNewPassword ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
                 placeholder="Min. 8 characters"
               />
               <button
@@ -694,7 +694,7 @@ export default function UsersPage() {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               placeholder="Repeat password"
             />
           </div>

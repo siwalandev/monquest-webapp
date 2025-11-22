@@ -309,9 +309,9 @@ export default function HeroContentPage() {
             Preview
           </button>
           <button
-            onClick={saveHeroData}
+            onClick={() => saveHeroData()}
             disabled={isSaving}
-            className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100 disabled:opacity-50"
           >
             <IoSave className="text-xl" />
             {isSaving ? "Saving..." : "Save Changes"}
@@ -329,7 +329,7 @@ export default function HeroContentPage() {
             type="text"
             value={heroData.title}
             onChange={(e) => setHeroData({ ...heroData, title: e.target.value })}
-            className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+            className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
             placeholder="MONQUEST"
           />
         </div>
@@ -340,7 +340,7 @@ export default function HeroContentPage() {
             type="text"
             value={heroData.subtitle}
             onChange={(e) => setHeroData({ ...heroData, subtitle: e.target.value })}
-            className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+            className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
             placeholder="Defend Your Kingdom in Epic Pixel-Art Tower Defense"
           />
         </div>
@@ -351,7 +351,7 @@ export default function HeroContentPage() {
             value={heroData.description}
             onChange={(e) => setHeroData({ ...heroData, description: e.target.value })}
             rows={4}
-            className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100 resize-none"
+            className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100 resize-none"
             placeholder="Build towers, summon heroes, and conquer waves of monsters..."
           />
         </div>
@@ -366,7 +366,7 @@ export default function HeroContentPage() {
           <button
             onClick={openAddCtaModal}
             disabled={heroData.ctaButtons.length >= 3}
-            className="flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-all duration-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-3 py-1.5 bg-pixel-primary hover:brightness-110 text-white text-sm font-medium transition-all duration-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <IoAdd className="text-lg" />
             Add Button
@@ -389,20 +389,20 @@ export default function HeroContentPage() {
                     onDelete={() => setDeleteConfirm({ isOpen: true, type: "cta", item: cta })}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-lg ${
-                        cta.variant === 'primary' ? 'bg-green-500/10 text-green-400' :
-                        cta.variant === 'secondary' ? 'bg-blue-500/10 text-blue-400' :
-                        'bg-gray-700/50 text-gray-300'
+                      <div className={`p-3 rounded-lg bg-gray-800 ${
+                        cta.variant === 'primary' ? 'text-pixel-primary' :
+                        cta.variant === 'secondary' ? 'text-pixel-secondary' :
+                        'text-pixel-accent'
                       }`}>
                         {getIcon(cta.icon)}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="text-base font-bold text-white">{cta.text}</h3>
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                            cta.variant === 'primary' ? 'bg-green-500/20 text-green-400' :
-                            cta.variant === 'secondary' ? 'bg-blue-500/20 text-blue-400' :
-                            'bg-gray-500/20 text-gray-400'
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium bg-gray-800 ${
+                            cta.variant === 'primary' ? 'text-pixel-primary' :
+                            cta.variant === 'secondary' ? 'text-pixel-secondary' :
+                            'text-pixel-accent'
                           }`}>
                             {cta.variant}
                           </span>
@@ -450,7 +450,7 @@ export default function HeroContentPage() {
                     onDelete={() => setDeleteConfirm({ isOpen: true, type: "stat", item: stat })}
                   >
                     <div>
-                      <div className="text-xl font-bold text-green-400 mb-1">{stat.value}</div>
+                      <div className="text-xl font-bold text-pixel-primary mb-1">{stat.value}</div>
                       <div className="text-sm text-gray-400">{stat.label}</div>
                     </div>
                   </DraggableCard>
@@ -477,9 +477,9 @@ export default function HeroContentPage() {
             </button>
             <button
               onClick={handleCtaSubmit}
-              className="px-4 py-2 text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100"
+              className="px-4 py-2 text-sm font-medium bg-pixel-primary hover:brightness-110 text-white transition-all duration-100"
             >
-              {editingCta ? "Update" : "Add"} Button
+              {editingCta ? "Update" : "Add"} CTA
             </button>
           </>
         }
@@ -505,7 +505,7 @@ export default function HeroContentPage() {
               type="text"
               value={ctaForm.text}
               onChange={(e) => setCtaForm({ ...ctaForm, text: e.target.value })}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               placeholder="Play Now"
             />
           </div>
@@ -516,7 +516,7 @@ export default function HeroContentPage() {
               type="text"
               value={ctaForm.link}
               onChange={(e) => setCtaForm({ ...ctaForm, link: e.target.value })}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               placeholder="/play or https://..."
             />
           </div>
@@ -529,12 +529,12 @@ export default function HeroContentPage() {
                   key={variant}
                   onClick={() => setCtaForm({ ...ctaForm, variant })}
                   className={`
-                    p-3 border-2 transition-all duration-100 text-sm font-medium capitalize
+                    p-3 border-2 transition-all duration-100 text-sm font-medium capitalize bg-gray-800
                     ${ctaForm.variant === variant
-                      ? variant === 'primary' ? 'border-green-500 bg-green-500/10 text-green-400' :
-                        variant === 'secondary' ? 'border-blue-500 bg-blue-500/10 text-blue-400' :
-                        'border-gray-500 bg-gray-500/10 text-gray-300'
-                      : 'border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600'
+                      ? variant === 'primary' ? 'border-pixel-primary text-pixel-primary' :
+                        variant === 'secondary' ? 'border-pixel-secondary text-pixel-secondary' :
+                        'border-pixel-accent text-pixel-accent'
+                      : 'border-gray-700 text-gray-400 hover:border-gray-600'
                     }
                   `}
                 >
@@ -562,7 +562,7 @@ export default function HeroContentPage() {
             </button>
             <button
               onClick={handleStatSubmit}
-              className="px-4 py-2 text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100"
+              className="px-4 py-2 text-sm font-medium bg-pixel-primary hover:brightness-110 text-white transition-all duration-100"
             >
               {editingStat ? "Update" : "Add"} Stat
             </button>
@@ -576,7 +576,7 @@ export default function HeroContentPage() {
               type="text"
               value={statForm.value}
               onChange={(e) => setStatForm({ ...statForm, value: e.target.value })}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               placeholder="1000+ or 24/7"
             />
           </div>
@@ -587,7 +587,7 @@ export default function HeroContentPage() {
               type="text"
               value={statForm.label}
               onChange={(e) => setStatForm({ ...statForm, label: e.target.value })}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               placeholder="Players or Online"
             />
           </div>

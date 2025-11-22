@@ -169,15 +169,14 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
         }
       `}>
       {/* Logo/Brand */}
-      <div className="p-6 border-b border-gray-800">
-        <div className="flex items-center justify-between mb-2 lg:mb-0">
+      <div className="px-6 h-[66px] flex items-center border-b-2 border-gray-800">
+        <div className="flex items-center justify-between w-full">
           <Link href="/admin" className="flex items-center gap-3" onClick={handleLinkClick}>
             <IoGameController className="text-3xl text-pixel-primary" />
             <div>
               <div className="text-lg font-bold text-white">
                 MONQUEST
               </div>
-              <div className="text-xs text-gray-400">Admin Panel</div>
             </div>
           </Link>
           
@@ -192,25 +191,8 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
         </div>
       </div>
 
-      {/* User Info */}
-      {user && (
-        <div className="p-4 border-b border-gray-800">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-pixel-primary rounded-full flex items-center justify-center text-white font-bold text-lg ring-2 ring-pixel-primary/30">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white truncate">{user.name}</div>
-              <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium mt-1 ${getRoleBadgeClass(user.role)}`}>
-                {getRoleDisplayName(user.role)}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Navigation */}
-      <nav className="p-4 space-y-1">
+      <nav className="p-4 space-y-1 pb-20">
         {menuItems.map((item, index) => {
           const hasAccess = hasMenuPermission(item.permission);
           

@@ -228,7 +228,7 @@ export default function FAQContentPage() {
           <button
             onClick={() => saveFAQData()}
             disabled={isSaving}
-            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 min-h-[44px] bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 min-h-[44px] bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100 disabled:opacity-50"
           >
             <IoSave className="text-xl" />
             {isSaving ? "Saving..." : "Save Changes"}
@@ -245,7 +245,7 @@ export default function FAQContentPage() {
               type="text"
               value={faqData.title}
               onChange={(e) => setFaqData({ ...faqData, title: e.target.value })}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               placeholder="FAQ"
             />
           </div>
@@ -256,7 +256,7 @@ export default function FAQContentPage() {
               type="text"
               value={faqData.subtitle}
               onChange={(e) => setFaqData({ ...faqData, subtitle: e.target.value })}
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               placeholder="Got questions? We've got answers!"
             />
           </div>
@@ -270,7 +270,7 @@ export default function FAQContentPage() {
             </h2>
             <button
               onClick={openAddItemModal}
-              className="flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-1.5 min-h-[44px] sm:min-h-0 bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-all duration-100"
+              className="flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-1.5 min-h-[44px] sm:min-h-0 bg-pixel-primary hover:brightness-110 text-white text-sm font-medium transition-all duration-100"
             >
               <IoAdd className="text-lg" />
               Add Question
@@ -282,7 +282,7 @@ export default function FAQContentPage() {
               <p className="text-gray-500 mb-4">No FAQs yet. Add your first question!</p>
               <button
                 onClick={openAddItemModal}
-                className="px-4 py-2 min-h-[44px] bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100"
+                className="px-4 py-2 min-h-[44px] bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
               >
                 Add First Question
               </button>
@@ -310,7 +310,7 @@ export default function FAQContentPage() {
                           onClick={() =>
                             setExpandedPreview(expandedPreview === item.id ? null : item.id)
                           }
-                          className="w-full text-left flex items-start justify-between gap-3"
+                          className="w-full text-left flex items-center justify-between gap-3"
                         >
                           <h3 className="text-base font-bold text-white flex-1">
                             {item.question}
@@ -351,9 +351,9 @@ export default function FAQContentPage() {
               </button>
               <button
                 onClick={handleItemSubmit}
-                className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100"
+                className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium bg-pixel-primary hover:brightness-110 text-white transition-all duration-100"
               >
-                {editingItem ? "Update" : "Add"} FAQ
+                {editingItem ? "Update" : "Add"} Question
               </button>
             </>
           }
@@ -365,7 +365,7 @@ export default function FAQContentPage() {
                 type="text"
                 value={itemForm.question}
                 onChange={(e) => setItemForm({ ...itemForm, question: e.target.value })}
-                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
                 placeholder="What is Monquest?"
               />
             </div>
@@ -376,7 +376,7 @@ export default function FAQContentPage() {
                 value={itemForm.answer}
                 onChange={(e) => setItemForm({ ...itemForm, answer: e.target.value })}
                 rows={6}
-                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100 resize-none"
+                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100 resize-none"
                 placeholder="Monquest is a pixel-art tower defense game built on Monad blockchain..."
               />
             </div>

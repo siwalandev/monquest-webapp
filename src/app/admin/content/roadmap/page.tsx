@@ -8,7 +8,7 @@ import Modal from "@/components/ui/Modal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import PermissionGuard from "@/components/PermissionGuard";
 import ColorSelector from "@/components/ui/ColorSelector";
-import { IoAdd, IoSave } from "react-icons/io5";
+import { IoAdd, IoSave, IoChevronDown } from "react-icons/io5";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { nanoid } from "nanoid";
@@ -40,6 +40,7 @@ export default function RoadmapContentPage() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [expandedPreview, setExpandedPreview] = useState<string | null>(null);
 
   // Modal states
   const [itemModalOpen, setItemModalOpen] = useState(false);
@@ -244,8 +245,8 @@ export default function RoadmapContentPage() {
   };
 
   const statusColors = {
-    completed: "border-green-500 bg-green-500/10 text-green-400",
-    "in-progress": "border-blue-500 bg-blue-500/10 text-blue-400",
+    completed: "border-pixel-primary bg-pixel-primary/10 text-pixel-primary",
+    "in-progress": "border-pixel-secondary bg-pixel-secondary/10 text-pixel-secondary",
     upcoming: "border-gray-500 bg-gray-500/10 text-gray-400",
   };
 
@@ -269,7 +270,7 @@ export default function RoadmapContentPage() {
           <button
             onClick={() => saveRoadmapData()}
             disabled={isSaving}
-            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 min-h-[44px] bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 min-h-[44px] bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100 disabled:opacity-50"
           >
             <IoSave className="text-xl" />
             {isSaving ? "Saving..." : "Save Changes"}
@@ -288,7 +289,7 @@ export default function RoadmapContentPage() {
               onChange={(e) =>
                 setRoadmapData({ ...roadmapData, title: e.target.value })
               }
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               placeholder="Roadmap"
             />
           </div>
@@ -301,7 +302,7 @@ export default function RoadmapContentPage() {
               onChange={(e) =>
                 setRoadmapData({ ...roadmapData, subtitle: e.target.value })
               }
-              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+              className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
               placeholder="Our journey to build the ultimate tower defense game"
             />
           </div>
@@ -315,7 +316,7 @@ export default function RoadmapContentPage() {
             </h2>
             <button
               onClick={openAddItemModal}
-              className="flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-1.5 min-h-[44px] sm:min-h-0 bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-all duration-100"
+              className="flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-1.5 min-h-[44px] sm:min-h-0 bg-pixel-primary hover:brightness-110 text-white text-sm font-medium transition-all duration-100"
             >
               <IoAdd className="text-lg" />
               Add Phase
@@ -327,7 +328,7 @@ export default function RoadmapContentPage() {
               <p className="text-gray-500 mb-4">No phases yet. Add your first phase!</p>
               <button
                 onClick={openAddItemModal}
-                className="px-4 py-2 min-h-[44px] bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100"
+                className="px-4 py-2 min-h-[44px] bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
               >
                 Add First Phase
               </button>
@@ -351,27 +352,43 @@ export default function RoadmapContentPage() {
                       onDelete={() => setDeleteConfirm({ isOpen: true, item })}
                     >
                       <div className="space-y-3">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-500">{item.phase}</span>
-                            <span className="text-lg font-bold text-green-400">{item.quarter}</span>
+                        <button
+                          onClick={() =>
+                            setExpandedPreview(expandedPreview === item.id ? null : item.id)
+                          }
+                          className="w-full text-left flex items-center justify-between gap-3"
+                        >
+                          <div className="flex-1 space-y-2">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500">{item.phase}</span>
+                                <span className="text-lg font-bold text-pixel-primary">{item.quarter}</span>
+                              </div>
+                              <span
+                                className={`text-xs px-2 py-1 rounded-full font-medium capitalize ${
+                                  statusColors[item.status]
+                                }`}
+                              >
+                                {item.status.replace("-", " ")}
+                              </span>
+                            </div>
+                            <h3 className="text-base font-bold text-white">{item.title}</h3>
                           </div>
-                          <span
-                            className={`text-xs px-2 py-1 rounded-full font-medium capitalize ${
-                              statusColors[item.status]
+                          <IoChevronDown
+                            className={`text-gray-400 text-xl flex-shrink-0 transition-transform duration-200 ${
+                              expandedPreview === item.id ? "rotate-180" : ""
                             }`}
-                          >
-                            {item.status.replace("-", " ")}
-                          </span>
-                        </div>
-                        <h3 className="text-base font-bold text-white">{item.title}</h3>
-                        <ul className="text-sm text-gray-400 space-y-1">
-                          {item.items.map((task, idx) => (
-                            <li key={idx} className="leading-relaxed">
-                              {task}
-                            </li>
-                          ))}
-                        </ul>
+                          />
+                        </button>
+                        {expandedPreview === item.id && (
+                          <ul className="text-sm text-gray-400 space-y-1 pt-2 border-t border-gray-800">
+                            {item.items.map((task, idx) => (
+                              <li key={idx} className="leading-relaxed">
+                                {task}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
                     </DraggableCard>
                   ))}
@@ -397,7 +414,7 @@ export default function RoadmapContentPage() {
               </button>
               <button
                 onClick={handleItemSubmit}
-                className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100"
+                className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium bg-pixel-primary hover:brightness-110 text-white transition-all duration-100"
               >
                 {editingItem ? "Update" : "Add"} Phase
               </button>
@@ -412,7 +429,7 @@ export default function RoadmapContentPage() {
                   type="text"
                   value={itemForm.phase}
                   onChange={(e) => setItemForm({ ...itemForm, phase: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+                  className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
                   placeholder="Phase 1"
                 />
               </div>
@@ -423,7 +440,7 @@ export default function RoadmapContentPage() {
                   type="text"
                   value={itemForm.quarter}
                   onChange={(e) => setItemForm({ ...itemForm, quarter: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+                  className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
                   placeholder="Q1 2025"
                 />
               </div>
@@ -435,7 +452,7 @@ export default function RoadmapContentPage() {
                 type="text"
                 value={itemForm.title}
                 onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
-                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+                className="w-full px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
                 placeholder="Foundation"
               />
             </div>
@@ -467,7 +484,7 @@ export default function RoadmapContentPage() {
                 <label className="block text-sm font-medium text-gray-400">Checklist Items *</label>
                 <button
                   onClick={addChecklistItem}
-                  className="text-xs text-green-400 hover:text-green-300 font-medium"
+                  className="text-xs text-pixel-primary hover:brightness-110 font-medium transition-all duration-100"
                 >
                   + Add Item
                 </button>
@@ -479,7 +496,7 @@ export default function RoadmapContentPage() {
                       type="text"
                       value={item}
                       onChange={(e) => updateChecklistItem(index, e.target.value)}
-                      className="flex-1 px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-green-500 focus:outline-none transition-colors duration-100"
+                      className="flex-1 px-4 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:border-pixel-primary focus:outline-none transition-colors duration-100"
                       placeholder="✅ Concept & Design"
                     />
                     {itemForm.items.length > 1 && (

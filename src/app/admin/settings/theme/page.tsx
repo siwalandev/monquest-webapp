@@ -305,7 +305,7 @@ export default function ThemeSettingsPage() {
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 border-b-2 border-gray-800 pb-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <IoColorPalette className="text-3xl text-green-400" />
+              <IoColorPalette className="text-3xl text-pixel-primary" />
               <h1 className="text-2xl sm:text-3xl text-white font-bold">Theme Settings</h1>
             </div>
             <p className="text-sm text-gray-400">
@@ -320,7 +320,7 @@ export default function ThemeSettingsPage() {
           <div className="lg:col-span-1">
             <div className="bg-gray-800 border-2 border-gray-700 p-4">
               <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <IoShieldCheckmark className="text-blue-400" />
+                <IoShieldCheckmark className="text-pixel-secondary" />
                 Theme Presets
               </h2>
               
@@ -339,13 +339,13 @@ export default function ThemeSettingsPage() {
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-white">{preset.name}</span>
                         {preset.isSystem && (
-                          <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs border border-blue-500">
+                          <span className="px-2 py-0.5 bg-pixel-secondary/20 text-pixel-secondary text-xs border border-pixel-secondary">
                             System
                           </span>
                         )}
                       </div>
                       {preset.slug === activePresetSlug && (
-                        <IoCheckmark className="text-green-400 text-xl" />
+                        <IoCheckmark className="text-pixel-primary text-xl" />
                       )}
                     </div>
                     
@@ -502,7 +502,7 @@ export default function ThemeSettingsPage() {
             </div>
 
             {/* Live Preview Info */}
-            <div className="mt-4 p-4 bg-blue-500/10 border-2 border-blue-500 text-blue-400 text-sm">
+            <div className="mt-4 p-4 bg-pixel-secondary/10 border-2 border-pixel-secondary text-pixel-secondary text-sm">
               <strong>💡 Live Preview:</strong> Color changes are applied instantly. Save to persist your changes.
             </div>
           </div>
