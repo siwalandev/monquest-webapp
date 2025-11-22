@@ -101,28 +101,28 @@ export default function AdminDashboard() {
 
   return (
     <PermissionGuard permissions="panel.access">
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
           Dashboard
         </h1>
-        <p className="text-gray-400">
+        <p className="text-sm sm:text-base text-gray-400">
           Welcome back! Here's what's happening with your website.
         </p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {statsDisplay.map((stat, index) => (
-          <div key={index} className="bg-gray-900 border border-gray-800 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-gray-400">{stat.icon}</div>
+          <div key={index} className="bg-gray-900 border border-gray-800 rounded-lg p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className="text-gray-400 text-xl sm:text-2xl">{stat.icon}</div>
             </div>
-            <div className="text-3xl font-bold text-white mb-1">
+            <div className="text-2xl sm:text-3xl font-bold text-white mb-1">
               {stat.value}
             </div>
-            <div className="text-sm text-gray-400">
+            <div className="text-xs sm:text-sm text-gray-400">
               {stat.label}
             </div>
           </div>
@@ -130,11 +130,11 @@ export default function AdminDashboard() {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Page Views Chart */}
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
-          <h2 className="text-xl font-bold text-white mb-6">Page Views</h2>
-          <ResponsiveContainer width="100%" height={250}>
+        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Page Views</h2>
+          <ResponsiveContainer width="100%" height={200} className="sm:h-[250px]">
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
@@ -155,9 +155,9 @@ export default function AdminDashboard() {
         </div>
 
         {/* Users Chart */}
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
-          <h2 className="text-xl font-bold text-white mb-6">Active Users</h2>
-          <ResponsiveContainer width="100%" height={250}>
+        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Active Users</h2>
+          <ResponsiveContainer width="100%" height={200} className="sm:h-[250px]">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis dataKey="name" stroke="#9ca3af" />
@@ -173,30 +173,30 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Quick Actions */}
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
-          <h2 className="text-xl font-bold text-white mb-6">Quick Actions</h2>
-          <div className="space-y-3">
+        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Quick Actions</h2>
+          <div className="space-y-2 sm:space-y-3">
             {quickActions.map((action, index) => (
               <Link
                 key={index}
                 href={action.href}
-                className="flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 rounded-lg transition-colors group"
+                className="flex items-center justify-between p-3 sm:p-4 bg-gray-800 hover:bg-gray-750 rounded-lg transition-colors group min-h-[48px]"
               >
-                <div className="flex items-center gap-3">
-                  <div className="text-green-400">{action.icon}</div>
-                  <span className="text-white font-medium">{action.title}</span>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="text-green-400 text-lg sm:text-base">{action.icon}</div>
+                  <span className="text-white font-medium text-sm sm:text-base">{action.title}</span>
                 </div>
-                <IoArrowForward className="text-gray-400 group-hover:text-green-400 transition-colors" />
+                <IoArrowForward className="text-gray-400 group-hover:text-green-400 transition-colors flex-shrink-0" />
               </Link>
             ))}
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
-          <h2 className="text-xl font-bold text-white mb-6">Recent Activity</h2>
+        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Recent Activity</h2>
           <div className="space-y-4">
             {recentActivity.length > 0 ? (
               recentActivity.map((activity, index) => (

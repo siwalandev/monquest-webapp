@@ -277,15 +277,15 @@ export default function RolesPage() {
     <PermissionGuard permissions="roles.view">
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center border-b-2 border-gray-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 border-b-2 border-gray-800 pb-6">
         <div>
-          <h1 className="text-3xl text-white font-bold mb-2">Role Management</h1>
+          <h1 className="text-2xl sm:text-3xl text-white font-bold mb-2">Role Management</h1>
           <p className="text-sm text-gray-400">Manage roles and permissions</p>
         </div>
         {canCreate && (
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 min-h-[44px] bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100"
           >
             <IoAdd className="text-xl" />
             Add Role
@@ -295,7 +295,7 @@ export default function RolesPage() {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-gray-900 border-2 border-gray-800 p-4 animate-fadeIn">
             <div className="flex items-center gap-3 mb-2">
               <IoShieldCheckmark className="text-2xl text-gray-400" />
@@ -641,7 +641,7 @@ function AddRoleModal({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-100 disabled:opacity-50"
+            className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-100 disabled:opacity-50"
           >
             Cancel
           </button>
@@ -649,7 +649,7 @@ function AddRoleModal({
             type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100 disabled:opacity-50"
+            className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100 disabled:opacity-50"
           >
             {loading ? "Creating..." : "Create Role"}
           </button>
@@ -850,11 +850,11 @@ function EditRoleModal({
                   type="checkbox"
                   checked={selectedPermissions.includes(permission.key)}
                   onChange={() => togglePermission(permission.key)}
-                  className="mt-1 w-4 h-4 accent-green-500"
+                  className="mt-1 w-4 h-4 min-w-[16px] accent-green-500"
                 />
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-white">{permission.label}</div>
-                  <div className="text-xs text-gray-400">{permission.description}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-white break-words">{permission.label}</div>
+                  <div className="text-xs text-gray-400 break-words">{permission.description}</div>
                 </div>
               </label>
             ))}
@@ -876,7 +876,7 @@ function EditRoleModal({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-100 disabled:opacity-50"
+            className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-100 disabled:opacity-50"
           >
             Cancel
           </button>
@@ -884,7 +884,7 @@ function EditRoleModal({
             type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100 disabled:opacity-50"
+            className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100 disabled:opacity-50"
           >
             {loading ? "Saving..." : "Save Changes"}
           </button>

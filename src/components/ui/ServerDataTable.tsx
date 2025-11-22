@@ -119,9 +119,9 @@ export function ServerDataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      {/* Search */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-md">
+      {/* Search & Page Size - Responsive */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="relative flex-1 w-full sm:max-w-md">
           <IoSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             value={globalFilter ?? ""}
@@ -138,7 +138,7 @@ export function ServerDataTable<TData, TValue>({
             setPageSize(Number(e.target.value));
             setCurrentPage(1);
           }}
-          className="px-3 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:outline-none focus:border-green-500 transition-colors duration-100"
+          className="w-full sm:w-auto px-3 py-2 bg-gray-800 border-2 border-gray-700 text-white focus:outline-none focus:border-green-500 transition-colors duration-100"
         >
           <option value={10}>10 rows</option>
           <option value={25}>25 rows</option>
@@ -147,17 +147,17 @@ export function ServerDataTable<TData, TValue>({
         </select>
       </div>
 
-      {/* Table */}
+      {/* Table - Horizontal Scroll on Mobile */}
       <div className="bg-gray-900 border-2 border-gray-800 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
+          <table className="w-full min-w-[640px]">
             <thead className="bg-gray-800 border-b-2 border-gray-700">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"
+                      className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap"
                     >
                       {header.isPlaceholder ? null : (
                         <div
@@ -196,7 +196,7 @@ export function ServerDataTable<TData, TValue>({
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
                     {columns.map((_, j) => (
-                      <td key={j} className="px-4 py-3">
+                      <td key={j} className="px-3 sm:px-4 py-3">
                         <div className="h-4 bg-gray-800 rounded w-3/4"></div>
                       </td>
                     ))}
@@ -209,7 +209,7 @@ export function ServerDataTable<TData, TValue>({
                     className="hover:bg-gray-800/50 transition-colors duration-100"
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-4 py-3 text-sm text-gray-300">
+                      <td key={cell.id} className="px-3 sm:px-4 py-3 text-sm text-gray-300">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
@@ -219,7 +219,7 @@ export function ServerDataTable<TData, TValue>({
                 <tr>
                   <td
                     colSpan={columns.length}
-                    className="px-4 py-8 text-center text-gray-500"
+                    className="px-3 sm:px-4 py-8 text-center text-gray-500"
                   >
                     No results found.
                   </td>
@@ -230,30 +230,32 @@ export function ServerDataTable<TData, TValue>({
         </div>
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between bg-gray-900 border-t-2 border-gray-800 p-4">
-        <div className="text-sm text-gray-400">
+      {/* Pagination - Mobile Responsive */}
+      <div className="flex flex-col sm:flex-row items-center justify-between bg-gray-900 border-t-2 border-gray-800 p-4 gap-4">
+        <div className="text-sm text-gray-400 text-center sm:text-left order-2 sm:order-1">
           Showing {totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1} to{" "}
           {Math.min(currentPage * pageSize, totalItems)} of {totalItems} results
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-800 text-white border border-gray-700 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-100"
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-400 px-3">
+        <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto order-1 sm:order-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="flex-1 sm:flex-none min-h-[44px] px-4 py-2 bg-gray-800 text-white border border-gray-700 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-100 font-medium"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="flex-1 sm:flex-none min-h-[44px] px-4 py-2 bg-gray-800 text-white border border-gray-700 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-100 font-medium"
+            >
+              Next
+            </button>
+          </div>
+          <span className="text-sm text-gray-400 px-3 whitespace-nowrap">
             Page {currentPage} of {totalPages || 1}
           </span>
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages || totalPages === 0}
-            className="px-4 py-2 bg-gray-800 text-white border border-gray-700 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-100"
-          >
-            Next
-          </button>
         </div>
       </div>
     </div>

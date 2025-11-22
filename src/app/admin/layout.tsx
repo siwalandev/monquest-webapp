@@ -74,7 +74,7 @@ function ProtectedLayout({ children }: { children: ReactNode }) {
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       {/* Main Content */}
-      <main className="flex-1 p-4 pt-20 lg:p-8 lg:pt-8 lg:ml-64">
+      <main className="flex-1 p-4 pt-20 sm:p-6 sm:pt-20 lg:p-8 lg:pt-8 lg:ml-64">
         <div className="max-w-7xl mx-auto">
           {children}
         </div>

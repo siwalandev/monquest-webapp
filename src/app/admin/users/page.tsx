@@ -441,16 +441,16 @@ export default function UsersPage() {
     <PermissionGuard permissions="users.view">
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center border-b-2 border-gray-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 border-b-2 border-gray-800 pb-6">
         <div>
-          <h1 className="text-3xl text-white font-bold mb-2">User Management</h1>
+          <h1 className="text-2xl sm:text-3xl text-white font-bold mb-2">User Management</h1>
           <p className="text-sm text-gray-400">
             Manage admin users, roles, and permissions
           </p>
         </div>
         <button
           onClick={openAddUserModal}
-          className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100"
+          className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 min-h-[44px] bg-green-500 hover:bg-green-600 text-white font-medium transition-all duration-100"
         >
           <IoAdd className="text-xl" />
           Add User
@@ -459,7 +459,7 @@ export default function UsersPage() {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-gray-900 border-2 border-gray-800 p-4 animate-fadeIn">
             <div className="flex items-center gap-3 mb-2">
               <IoPerson className="text-2xl text-gray-400" />
@@ -520,13 +520,13 @@ export default function UsersPage() {
           <>
             <button
               onClick={() => setUserModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-100"
+              className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-100"
             >
               Cancel
             </button>
             <button
               onClick={handleUserSubmit}
-              className="px-4 py-2 text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100"
+              className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100"
             >
               {editingUser ? "Update" : "Create"} User
             </button>
@@ -640,13 +640,13 @@ export default function UsersPage() {
           <>
             <button
               onClick={() => setResetPasswordOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-100"
+              className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-100"
             >
               Cancel
             </button>
             <button
               onClick={handleResetPassword}
-              className="px-4 py-2 text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100"
+              className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-100"
             >
               Reset Password
             </button>

@@ -59,55 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
   
   // Privy hooks
-  const { ready: privyReady, authenticated: privyAuthenticated, user: privyUser, logout: privyLogout, getAccessToken } = usePrivy();
-
-  // Periodic role check to detect database changes
-  useEffect(() => {
-    // Skip polling for non-admin pages (404, landing page, etc)
-    if (!currentPath.startsWith('/admin')) return;
-    if (!isAuthenticated || !user) return;
-
-    const checkRoleUpdate = async () => {
-      try {
-        const response = await fetch('/api/auth/me', {
-          headers: {
-            'x-user-id': user.id,
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (data.user) {
-            // Check if role changed OR permissions changed
-            const roleChanged = data.user.role.id !== user.role.id;
-            const permissionsChanged = JSON.stringify(data.user.role.permissions.sort()) !== JSON.stringify(user.role.permissions.sort());
-            
-              if (roleChanged || permissionsChanged) {
-                console.log('🔄 Permissions updated in database, refreshing...', {
-                  roleChanged,
-                  permissionsChanged,
-                  oldPerms: user.role.permissions,
-                  newPerms: data.user.role.permissions
-                });
-                // Update user data with new permissions
-                setUser(data.user);
-                localStorage.setItem("admin_user", JSON.stringify(data.user));
-                toast.success('Your permissions have been updated!');
-                // Force re-render all components
-                setForceUpdate(prev => prev + 1);
-                window.dispatchEvent(new Event('permissionsUpdated'));
-                window.dispatchEvent(new Event('storage'));
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Failed to check role update:', error);
-        }
-      };
-
-      // Check every 10 seconds for faster permission sync
-      const interval = setInterval(checkRoleUpdate, 10000);
-      return () => clearInterval(interval);
-    }, [isAuthenticated, user, currentPath]);  // Auto-sync with Privy authentication on mount
+  const { ready: privyReady, authenticated: privyAuthenticated, user: privyUser, logout: privyLogout, getAccessToken } = usePrivy();  // Auto-sync with Privy authentication on mount
   useEffect(() => {
     const syncAuth = async () => {
       // Skip auth checks for non-admin pages
