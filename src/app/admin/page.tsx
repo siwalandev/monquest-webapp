@@ -6,6 +6,7 @@ import { IoDocument, IoImage, IoEye, IoPeople, IoTrendingUp, IoArrowForward, IoK
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import toast from "react-hot-toast";
 import PermissionGuard from "@/components/PermissionGuard";
+import { authFetch } from "@/lib/fetch";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -20,7 +21,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch("/api/dashboard/stats");
+        const response = await authFetch("/api/dashboard/stats");
         const result = await response.json();
         
         if (result.success) {

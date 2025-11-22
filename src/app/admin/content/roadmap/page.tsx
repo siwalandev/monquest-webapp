@@ -11,6 +11,7 @@ import { IoAdd, IoSave } from "react-icons/io5";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { nanoid } from "nanoid";
+import { authFetch } from "@/lib/fetch";
 
 interface RoadmapItem {
   id: string;
@@ -68,7 +69,7 @@ export default function RoadmapContentPage() {
 
   const fetchRoadmapData = async () => {
     try {
-      const response = await fetch("/api/content/roadmap");
+      const response = await authFetch("/api/content/roadmap");
       const result = await response.json();
 
       if (result.success) {
@@ -101,9 +102,8 @@ export default function RoadmapContentPage() {
         ? { ...roadmapData, items: updatedItems }
         : roadmapData;
 
-      const response = await fetch("/api/content/roadmap", {
+      const response = await authFetch("/api/content/roadmap", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           data: dataToSave,
           userId: user.id,

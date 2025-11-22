@@ -12,6 +12,7 @@ import * as Icons from "react-icons/io5";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { nanoid } from "nanoid";
+import { authFetch } from "@/lib/fetch";
 
 interface Step {
   id: string;
@@ -68,7 +69,7 @@ export default function HowItWorksContentPage() {
 
   const fetchHowItWorksData = async () => {
     try {
-      const response = await fetch("/api/content/how-it-works");
+      const response = await authFetch("/api/content/how-it-works");
       const result = await response.json();
 
       if (result.success) {
@@ -101,9 +102,8 @@ export default function HowItWorksContentPage() {
         ? { ...howItWorksData, steps: updatedSteps }
         : howItWorksData;
 
-      const response = await fetch("/api/content/how-it-works", {
+      const response = await authFetch("/api/content/how-it-works", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           data: dataToSave,
           userId: user.id,

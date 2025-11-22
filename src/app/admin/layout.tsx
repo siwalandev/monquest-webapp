@@ -64,7 +64,7 @@ function ProtectedLayout({ children }: { children: ReactNode }) {
         
         {/* User Avatar on Mobile */}
         {user && (
-          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-sm ring-2 ring-green-500/30">
+          <div className="w-8 h-8 bg-pixel-primary rounded-full flex items-center justify-center text-white font-bold text-sm ring-2 ring-pixel-primary/30">
             {user.name.charAt(0).toUpperCase()}
           </div>
         )}

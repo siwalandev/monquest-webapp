@@ -12,6 +12,7 @@ import * as Icons from "react-icons/io5";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { nanoid } from "nanoid";
+import { authFetch } from "@/lib/fetch";
 
 interface Feature {
   id: string;
@@ -49,7 +50,7 @@ export default function FeaturesContentPage() {
 
   const fetchFeatures = async () => {
     try {
-      const response = await fetch("/api/content/features");
+      const response = await authFetch("/api/content/features");
       const result = await response.json();
       
       if (result.success) {
@@ -72,9 +73,8 @@ export default function FeaturesContentPage() {
     }
 
     try {
-      const response = await fetch("/api/content/features", {
+      const response = await authFetch("/api/content/features", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           data: {
             title: "Game Features",

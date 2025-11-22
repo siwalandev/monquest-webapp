@@ -27,11 +27,21 @@ export default function PixelInput({
           text-pixel-light
           focus:border-pixel-secondary
           focus:outline-none
-          focus:shadow-[0_0_10px_rgba(96,165,250,0.5)]
           transition-all
           text-sm
           ${className}
         `}
+        style={{
+          ...((props.style || {}) as any),
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.boxShadow = '0 0 10px color-mix(in srgb, var(--pixel-secondary) 50%, transparent)';
+          props.onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.boxShadow = 'none';
+          props.onBlur?.(e);
+        }}
         {...props}
       />
       {error && (

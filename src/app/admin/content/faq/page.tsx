@@ -11,6 +11,7 @@ import { IoAdd, IoSave, IoChevronDown } from "react-icons/io5";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { nanoid } from "nanoid";
+import { authFetch } from "@/lib/fetch";
 
 interface FAQItem {
   id: string;
@@ -63,7 +64,7 @@ export default function FAQContentPage() {
 
   const fetchFAQData = async () => {
     try {
-      const response = await fetch("/api/content/faq");
+      const response = await authFetch("/api/content/faq");
       const result = await response.json();
 
       if (result.success) {
@@ -96,9 +97,8 @@ export default function FAQContentPage() {
         ? { ...faqData, items: updatedItems }
         : faqData;
 
-      const response = await fetch("/api/content/faq", {
+      const response = await authFetch("/api/content/faq", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           data: dataToSave,
           userId: user.id,

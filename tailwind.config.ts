@@ -9,14 +9,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Monquest pixel-art color palette
+        // Monquest pixel-art color palette - using CSS variables for dynamic theming
         pixel: {
-          primary: "#4ADE80",    // hijau pixel bright
-          secondary: "#60A5FA",  // biru pixel
-          accent: "#FB923C",     // oranye pixel
-          dark: "#1E293B",       // dark background
-          darker: "#0F172A",     // darker background
-          light: "#F1F5F9",      // light text
+          primary: "var(--pixel-primary)",
+          secondary: "var(--pixel-secondary)",
+          accent: "var(--pixel-accent)",
+          dark: "var(--pixel-dark)",
+          darker: "var(--pixel-darker)",
+          light: "var(--pixel-light)",
         },
       },
       fontFamily: {

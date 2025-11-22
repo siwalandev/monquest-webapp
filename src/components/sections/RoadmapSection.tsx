@@ -16,7 +16,7 @@ export default function RoadmapSection() {
     try {
       const response = await fetch("/api/public/content?type=ROADMAP");
       const result = await response.json();
-      
+
       if (result.success && result.data) {
         setRoadmapData(result.data.data);
       }
@@ -80,7 +80,7 @@ export default function RoadmapSection() {
                 <div className="space-y-4">
                   {/* Status Badge */}
                   <div className={`flex items-center gap-2 ${config?.textColor}`}>
-                    <StatusIcon 
+                    <StatusIcon
                       className={`w-5 h-5 ${config?.animated ? 'animate-spin' : ''}`}
                     />
                     <span className="text-xs font-bold uppercase tracking-wider">

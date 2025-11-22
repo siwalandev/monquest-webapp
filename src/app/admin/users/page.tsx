@@ -8,6 +8,7 @@ import ConfirmModal from "@/components/ui/ConfirmModal";
 import RoleBadge from "@/components/ui/RoleBadge";
 import StatusBadge from "@/components/ui/StatusBadge";
 import PermissionGuard from "@/components/PermissionGuard";
+import { authFetch } from "@/lib/fetch";
 import {
   IoAdd,
   IoCreate,
@@ -108,7 +109,7 @@ export default function UsersPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch("/api/users/stats");
+      const response = await authFetch("/api/users/stats");
       const result = await response.json();
       if (result.success) {
         setStats(result.data);
@@ -120,7 +121,7 @@ export default function UsersPage() {
 
   const fetchRoles = async () => {
     try {
-      const response = await fetch("/api/roles?includeSystem=true");
+      const response = await authFetch("/api/roles?includeSystem=true");
       const result = await response.json();
       if (result.roles) {
         setRoles(result.roles);
@@ -296,9 +297,8 @@ export default function UsersPage() {
         body.password = userForm.password;
       }
 
-      const response = await fetch(url, {
+      const response = await authFetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -371,11 +371,10 @@ export default function UsersPage() {
     }
 
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `/api/users/${resetUser?.id}/reset-password`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             password: newPassword,
             userId: user?.id,
@@ -405,7 +404,7 @@ export default function UsersPage() {
     if (!deleteConfirm.user) return;
 
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `/api/users/${deleteConfirm.user.id}?userId=${user?.id}`,
         {
           method: "DELETE",

@@ -74,7 +74,7 @@ async function main() {
         ...PERMISSIONS.content,
         ...PERMISSIONS.media,
         ...PERMISSIONS.apiKeys,
-        PERMISSIONS.settings[0], // only settings.view
+        ...PERMISSIONS.settings, // Full settings access
       ],
     },
     create: {
@@ -88,7 +88,7 @@ async function main() {
         ...PERMISSIONS.content,
         ...PERMISSIONS.media,
         ...PERMISSIONS.apiKeys,
-        PERMISSIONS.settings[0], // only settings.view
+        ...PERMISSIONS.settings, // Full settings access
       ],
       isSystem: true,
     },
@@ -441,6 +441,99 @@ async function main() {
   });
 
   console.log('✅ Created content:', heroContent.type, featuresContent.type, howItWorksContent.type, roadmapContent.type, faqContent.type);
+
+  // Create theme presets
+  const defaultPreset = await prisma.themePreset.upsert({
+    where: { slug: 'default' },
+    update: {},
+    create: {
+      name: 'Default',
+      slug: 'default',
+      colors: {
+        primary: '#4ADE80',
+        secondary: '#60A5FA',
+        accent: '#FB923C',
+        dark: '#1E293B',
+        darker: '#0F172A',
+        light: '#F1F5F9',
+      },
+      isDefault: true,
+      isSystem: true,
+    },
+  });
+
+  const cyberpunkPreset = await prisma.themePreset.upsert({
+    where: { slug: 'cyberpunk' },
+    update: {},
+    create: {
+      name: 'Cyberpunk',
+      slug: 'cyberpunk',
+      colors: {
+        primary: '#FF0080',
+        secondary: '#00FFFF',
+        accent: '#FFFF00',
+        dark: '#0D001A',
+        darker: '#050008',
+        light: '#E0E0FF',
+      },
+      isDefault: false,
+      isSystem: true,
+    },
+  });
+
+  const oceanPreset = await prisma.themePreset.upsert({
+    where: { slug: 'ocean' },
+    update: {},
+    create: {
+      name: 'Ocean',
+      slug: 'ocean',
+      colors: {
+        primary: '#06B6D4',
+        secondary: '#3B82F6',
+        accent: '#10B981',
+        dark: '#0C4A6E',
+        darker: '#082F49',
+        light: '#E0F2FE',
+      },
+      isDefault: false,
+      isSystem: true,
+    },
+  });
+
+  const sunsetPreset = await prisma.themePreset.upsert({
+    where: { slug: 'sunset' },
+    update: {},
+    create: {
+      name: 'Sunset',
+      slug: 'sunset',
+      colors: {
+        primary: '#F59E0B',
+        secondary: '#EF4444',
+        accent: '#EC4899',
+        dark: '#451A03',
+        darker: '#1C0A00',
+        light: '#FEF3C7',
+      },
+      isDefault: false,
+      isSystem: true,
+    },
+  });
+
+  console.log('✅ Created theme presets:', defaultPreset.name, cyberpunkPreset.name, oceanPreset.name, sunsetPreset.name);
+
+  // Create settings for active theme
+  const activeThemeSetting = await prisma.settings.upsert({
+    where: { key: 'active_theme_preset' },
+    update: {},
+    create: {
+      key: 'active_theme_preset',
+      value: 'default',
+      category: 'appearance',
+      description: 'Currently active theme preset slug',
+    },
+  });
+
+  console.log('✅ Created settings:', activeThemeSetting.key);
 
   // Create activity log
   await prisma.activityLog.create({

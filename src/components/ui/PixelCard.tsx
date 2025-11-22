@@ -11,25 +11,35 @@ export default function PixelCard({
   className = "",
   glowColor = "primary",
 }: PixelCardProps) {
-  const glowStyles = {
-    primary: "shadow-[0_0_20px_rgba(74,222,128,0.3)]",
-    secondary: "shadow-[0_0_20px_rgba(96,165,250,0.3)]",
-    accent: "shadow-[0_0_20px_rgba(251,146,60,0.3)]",
+  // Map glow colors to CSS variable names
+  const glowVarMap = {
+    primary: "--pixel-primary",
+    secondary: "--pixel-secondary",
+    accent: "--pixel-accent",
   };
+  
+  const glowVar = glowVarMap[glowColor];
 
   return (
     <div
       className={`
         bg-pixel-dark
-        border-4 border-pixel-primary
+        border-4 border-pixel-${glowColor}
         p-6
-        ${glowStyles[glowColor]}
-        hover:${glowStyles[glowColor].replace("0.3", "0.5")}
         transition-all
         duration-300
         pixel-borders
         ${className}
       `}
+      style={{
+        boxShadow: `0 0 20px color-mix(in srgb, var(${glowVar}) 30%, transparent)`,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = `0 0 20px color-mix(in srgb, var(${glowVar}) 50%, transparent)`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = `0 0 20px color-mix(in srgb, var(${glowVar}) 30%, transparent)`;
+      }}
     >
       {children}
     </div>

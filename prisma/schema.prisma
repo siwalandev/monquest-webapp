@@ -146,3 +146,32 @@ model ActivityLog {
 
   @@map("activity_logs")
 }
+
+// Settings untuk konfigurasi aplikasi
+model Settings {
+  id          String   @id @default(cuid())
+  key         String   @unique // e.g., "active_theme_preset"
+  value       Json     // Flexible JSON storage
+  category    String   // e.g., "appearance", "general", "email"
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@map("settings")
+}
+
+// Theme Presets untuk customization warna
+model ThemePreset {
+  id        String   @id @default(cuid())
+  name      String   // e.g., "Default", "Cyberpunk", "Ocean"
+  slug      String   @unique // e.g., "default", "cyberpunk", "ocean"
+  colors    Json     // { primary, secondary, accent, dark, darker, light }
+  isDefault Boolean  @default(false) // Only one preset can be default
+  isSystem  Boolean  @default(false) // System presets cannot be deleted
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([isDefault])
+  @@map("theme_presets")
+}

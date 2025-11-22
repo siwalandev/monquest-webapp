@@ -16,7 +16,8 @@ import {
   IoPeople,
   IoShield,
   IoMenu,
-  IoClose
+  IoClose,
+  IoColorPalette
 } from "react-icons/io5";
 import { useState, useEffect } from "react";
 
@@ -120,6 +121,7 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
       icon: <IoSettings className="text-xl" />,
       permission: "settings.view",
       submenu: [
+        { title: "Theme", href: "/admin/settings/theme", permission: "settings.view", icon: <IoColorPalette /> },
         { title: "API Keys", href: "/admin/settings/api-keys", permission: "apiKeys.view" },
         { title: "General", href: "/admin/settings/general", permission: "settings.view" },
       ],
@@ -170,7 +172,7 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
       <div className="p-6 border-b border-gray-800">
         <div className="flex items-center justify-between mb-2 lg:mb-0">
           <Link href="/admin" className="flex items-center gap-3" onClick={handleLinkClick}>
-            <IoGameController className="text-3xl text-green-400" />
+            <IoGameController className="text-3xl text-pixel-primary" />
             <div>
               <div className="text-lg font-bold text-white">
                 MONQUEST
@@ -194,7 +196,7 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
       {user && (
         <div className="p-4 border-b border-gray-800">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg ring-2 ring-green-500/30">
+            <div className="w-12 h-12 bg-pixel-primary rounded-full flex items-center justify-center text-white font-bold text-lg ring-2 ring-pixel-primary/30">
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
@@ -224,12 +226,12 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
                   border-l-[6px] transition-all duration-100 text-sm font-medium
                   ${
                     isActive(item.href)
-                      ? "border-green-400 bg-green-500/10 text-green-400 shadow-[inset_0_0_20px_rgba(34,197,94,0.1)]"
+                      ? "border-pixel-primary bg-pixel-primary/10 text-pixel-primary"
                       : "border-transparent text-gray-400 hover:bg-gray-800/70 hover:text-white hover:border-gray-700"
                   }
                 `}
                 style={isActive(item.href) ? {
-                  boxShadow: '4px 0 0 0 rgba(34, 197, 94, 0.3), inset 0 0 20px rgba(34, 197, 94, 0.1)'
+                  boxShadow: '4px 0 0 0 var(--pixel-primary), inset 0 0 20px color-mix(in srgb, var(--pixel-primary) 10%, transparent)'
                 } : undefined}
               >
                 {item.icon}
@@ -253,12 +255,12 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
                     border-l-4 transition-all duration-100 text-sm font-medium
                     ${
                       item.id && isParentActive(`/admin/${item.id}`)
-                        ? "border-green-400 bg-green-500/5 text-white shadow-[inset_0_0_15px_rgba(34,197,94,0.08)]"
+                        ? "border-pixel-primary bg-pixel-primary/5 text-white"
                         : "border-transparent text-gray-400 hover:bg-gray-800/70 hover:text-white hover:border-gray-700"
                     }
                   `}
                   style={item.id && isParentActive(`/admin/${item.id}`) ? {
-                    boxShadow: '3px 0 0 0 rgba(34, 197, 94, 0.2), inset 0 0 15px rgba(34, 197, 94, 0.08)'
+                    boxShadow: '3px 0 0 0 color-mix(in srgb, var(--pixel-primary) 30%, transparent), inset 0 0 15px color-mix(in srgb, var(--pixel-primary) 8%, transparent)'
                   } : undefined}
                 >
                   <div className="flex items-center gap-3">
@@ -288,12 +290,12 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
                           border-l-[6px] transition-all duration-100
                           ${
                             isActive(subitem.href)
-                              ? "border-green-400 bg-green-500/15 text-green-400 font-medium"
+                              ? "border-pixel-primary bg-pixel-primary/15 text-pixel-primary font-medium"
                               : "border-transparent text-gray-400 hover:bg-gray-800/70 hover:text-white hover:border-gray-700"
                           }
                         `}
                         style={isActive(subitem.href) ? {
-                          boxShadow: '4px 0 0 0 rgba(34, 197, 94, 0.4), inset 0 0 25px rgba(34, 197, 94, 0.15), 0 0 10px rgba(34, 197, 94, 0.1)'
+                          boxShadow: '4px 0 0 0 color-mix(in srgb, var(--pixel-primary) 40%, transparent), inset 0 0 25px color-mix(in srgb, var(--pixel-primary) 15%, transparent)'
                         } : undefined}
                       >
                         <span className={`w-1.5 h-1.5 ${isActive(subitem.href) ? 'rounded-none' : 'rounded-full'} bg-current mr-3 ${isActive(subitem.href) ? 'opacity-100' : 'opacity-50'}`}></span>
@@ -319,7 +321,7 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
       </nav>
 
       {/* Bottom Actions */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-800 bg-gray-900">
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-pixel-dark bg-pixel-darker">
         <button
           onClick={logout}
           className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 transition-all duration-200 text-sm font-medium rounded-lg"

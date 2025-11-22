@@ -14,9 +14,9 @@ export default function PixelButton({
   ...props
 }: PixelButtonProps) {
   const variantStyles = {
-    primary: "bg-pixel-primary text-pixel-darker hover:bg-green-400",
-    secondary: "bg-pixel-secondary text-pixel-darker hover:bg-blue-400",
-    accent: "bg-pixel-accent text-pixel-darker hover:bg-orange-400",
+    primary: "bg-pixel-primary text-pixel-darker hover:brightness-110",
+    secondary: "bg-pixel-secondary text-pixel-darker hover:brightness-110",
+    accent: "bg-pixel-accent text-pixel-darker hover:brightness-110",
   };
 
   const sizeStyles = {

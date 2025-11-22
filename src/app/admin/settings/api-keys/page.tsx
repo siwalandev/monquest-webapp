@@ -6,6 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { IoAdd, IoTrash, IoEye, IoEyeOff, IoCopy, IoClose } from "react-icons/io5";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { authFetch } from "@/lib/fetch";
 
 interface APIKey {
   id: string;
@@ -35,7 +36,7 @@ export default function APIKeysPage() {
   // Fetch API keys
   const fetchApiKeys = async () => {
     try {
-      const response = await fetch("/api/api-keys");
+      const response = await authFetch("/api/api-keys");
       const data = await response.json();
       
       if (data.success) {
@@ -68,7 +69,7 @@ export default function APIKeysPage() {
     if (!confirm("Are you sure you want to delete this API key?")) return;
 
     try {
-      const response = await fetch(`/api/api-keys/${id}?userId=${user?.id}`, {
+      const response = await authFetch(`/api/api-keys/${id}?userId=${user?.id}`, {
         method: "DELETE",
       });
 
@@ -95,11 +96,8 @@ export default function APIKeysPage() {
     }
 
     try {
-      const response = await fetch("/api/api-keys", {
+      const response = await authFetch("/api/api-keys", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           name: formData.name,
           environment: formData.environment,

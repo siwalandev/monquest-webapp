@@ -7,6 +7,7 @@ import Modal from "@/components/ui/Modal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import Accordion from "@/components/ui/Accordion";
 import PermissionGuard from "@/components/PermissionGuard";
+import { authFetch } from "@/lib/fetch";
 import {
   IoAdd,
   IoTrash,
@@ -95,7 +96,7 @@ export default function RolesPage() {
   const fetchStats = async () => {
     try {
       // Fetch all roles for stats
-      const response = await fetch("/api/roles?includeSystem=true&limit=1000");
+      const response = await authFetch("/api/roles?includeSystem=true&limit=1000");
       const result = await response.json();
 
       if (result.roles) {
@@ -120,7 +121,7 @@ export default function RolesPage() {
 
   const fetchPermissions = async () => {
     try {
-      const response = await fetch("/api/roles/permissions");
+      const response = await authFetch("/api/roles/permissions");
       if (!response.ok) throw new Error("Failed to fetch permissions");
 
       const data = await response.json();
@@ -253,9 +254,8 @@ export default function RolesPage() {
     if (!deleteConfirm.role) return;
 
     try {
-      const response = await fetch(`/api/roles/${deleteConfirm.role.id}`, {
+      const response = await authFetch(`/api/roles/${deleteConfirm.role.id}`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ targetRoleId }),
       });
 
@@ -546,9 +546,8 @@ function AddRoleModal({
     setLoading(true);
 
     try {
-      const response = await fetch("/api/roles", {
+      const response = await authFetch("/api/roles", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: name.trim(),
           slug,
@@ -772,9 +771,8 @@ function EditRoleModal({
     setLoading(true);
 
     try {
-      const response = await fetch(`/api/roles/${role.id}`, {
+      const response = await authFetch(`/api/roles/${role.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: role.isSystem ? undefined : name.trim(),
           description: role.isSystem ? undefined : description.trim() || null,
