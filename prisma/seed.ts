@@ -320,7 +320,127 @@ async function main() {
     },
   });
 
-  console.log('✅ Created content:', heroContent.type, featuresContent.type, howItWorksContent.type);
+  const roadmapContent = await prisma.content.upsert({
+    where: { type: 'ROADMAP' },
+    update: {},
+    create: {
+      type: 'ROADMAP',
+      data: {
+        title: 'Roadmap',
+        subtitle: 'Our journey to build the ultimate tower defense game on Monad',
+        items: [
+          {
+            id: 'phase1',
+            phase: 'Phase 1',
+            quarter: 'Q1 2025',
+            title: 'Foundation',
+            status: 'completed',
+            items: [
+              'Concept & Design',
+              'Smart Contract Development',
+              'Website & dApp UI',
+              'Testnet Deployment',
+            ],
+            order: 0,
+          },
+          {
+            id: 'phase2',
+            phase: 'Phase 2',
+            quarter: 'Q2 2025',
+            title: 'Alpha Launch',
+            status: 'in-progress',
+            items: [
+              'Mainnet Deployment',
+              'Alpha Testing',
+              'NFT Marketplace',
+              'Community Building',
+            ],
+            order: 1,
+          },
+          {
+            id: 'phase3',
+            phase: 'Phase 3',
+            quarter: 'Q3 2025',
+            title: 'Beta & Expansion',
+            status: 'upcoming',
+            items: [
+              'Public Beta Launch',
+              'PvP Mode',
+              'Tournaments',
+              'Mobile Version',
+            ],
+            order: 2,
+          },
+          {
+            id: 'phase4',
+            phase: 'Phase 4',
+            quarter: 'Q4 2025',
+            title: 'Full Release',
+            status: 'upcoming',
+            items: [
+              'Official Launch',
+              'Cross-Chain Integration',
+              'DAO Governance',
+              'Metaverse Integration',
+            ],
+            order: 3,
+          },
+        ],
+      },
+    },
+  });
+
+  const faqContent = await prisma.content.upsert({
+    where: { type: 'FAQ' },
+    update: {},
+    create: {
+      type: 'FAQ',
+      data: {
+        title: 'FAQ',
+        subtitle: 'Got questions? We\'ve got answers!',
+        items: [
+          {
+            id: 'faq1',
+            question: 'What is Monquest?',
+            answer: 'Monquest is a pixel-art tower defense game built on Monad blockchain. Players build towers, defend against monsters, and earn NFT rewards while enjoying strategic gameplay.',
+            order: 0,
+          },
+          {
+            id: 'faq2',
+            question: 'How do I start playing?',
+            answer: 'Simply connect your Web3 wallet (MetaMask, WalletConnect, etc.), mint your starter pack, and begin your adventure! The game guides you through the basics.',
+            order: 1,
+          },
+          {
+            id: 'faq3',
+            question: 'What blockchain does Monquest use?',
+            answer: 'Monquest is built on Monad, a high-performance EVM-compatible blockchain. This ensures fast transactions and low fees for the best gaming experience.',
+            order: 2,
+          },
+          {
+            id: 'faq4',
+            question: 'Can I earn money playing Monquest?',
+            answer: 'Yes! Monquest features play-to-earn mechanics. You can earn rewards, collect rare NFTs, and trade items on the marketplace. Top players also receive tournament prizes.',
+            order: 3,
+          },
+          {
+            id: 'faq5',
+            question: 'Are the NFTs tradeable?',
+            answer: 'Absolutely! All towers, heroes, and items are NFTs that you truly own. Trade them on our marketplace or any compatible NFT platform.',
+            order: 4,
+          },
+          {
+            id: 'faq6',
+            question: 'Is there a mobile version?',
+            answer: 'Mobile version is planned for Phase 3 (Q3 2025). Currently, Monquest is available as a web-based dApp accessible from desktop browsers.',
+            order: 5,
+          },
+        ],
+      },
+    },
+  });
+
+  console.log('✅ Created content:', heroContent.type, featuresContent.type, howItWorksContent.type, roadmapContent.type, faqContent.type);
 
   // Create activity log
   await prisma.activityLog.create({

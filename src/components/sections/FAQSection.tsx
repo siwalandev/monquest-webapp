@@ -1,43 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PixelCard from "@/components/ui/PixelCard";
 
 export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [faqData, setFaqData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const faqs = [
-    {
-      question: "What is Monquest?",
-      answer:
-        "Monquest is a pixel-art tower defense game built on Monad blockchain. Players build towers, defend against monsters, and earn NFT rewards while enjoying strategic gameplay.",
-    },
-    {
-      question: "How do I start playing?",
-      answer:
-        "Simply connect your Web3 wallet (MetaMask, WalletConnect, etc.), mint your starter pack, and begin your adventure! The game guides you through the basics.",
-    },
-    {
-      question: "What blockchain does Monquest use?",
-      answer:
-        "Monquest is built on Monad, a high-performance EVM-compatible blockchain. This ensures fast transactions and low fees for the best gaming experience.",
-    },
-    {
-      question: "Can I earn money playing Monquest?",
-      answer:
-        "Yes! Monquest features play-to-earn mechanics. You can earn rewards, collect rare NFTs, and trade items on the marketplace. Top players also receive tournament prizes.",
-    },
-    {
-      question: "Are the NFTs tradeable?",
-      answer:
-        "Absolutely! All towers, heroes, and items are NFTs that you truly own. Trade them on our marketplace or any compatible NFT platform.",
-    },
-    {
-      question: "Is there a mobile version?",
-      answer:
-        "Mobile version is planned for Phase 3 (Q3 2025). Currently, Monquest is available as a web-based dApp accessible from desktop browsers.",
-    },
-  ];
+  useEffect(() => {
+    fetchFAQData();
+  }, []);
+
+  const fetchFAQData = async () => {
+    try {
+      const response = await fetch("/api/public/content?type=FAQ");
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        setFaqData(result.data.data);
+      }
+    } catch (error) {
+      console.error("Failed to load FAQ:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const faqs = faqData?.items || [];
+  const title = faqData?.title || "FAQ";
+  const subtitle = faqData?.subtitle || "Got questions? We've got answers!";
 
   return (
     <section id="faq" className="py-20 px-4">
@@ -45,10 +37,10 @@ export default function FAQSection() {
         {/* Section Header */}
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-3xl md:text-5xl text-pixel-primary font-pixel text-shadow-pixel">
-            FAQ
+            {title}
           </h2>
           <p className="text-sm md:text-base text-pixel-light/70">
-            Got questions? We've got answers!
+            {subtitle}
           </p>
         </div>
 

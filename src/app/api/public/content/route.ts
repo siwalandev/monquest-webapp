@@ -3,11 +3,26 @@ import prisma from '@/lib/prisma';
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
-// GET - Fetch all public content (Hero, Features, How It Works)
+// GET - Fetch public content (single type or all)
 export async function GET(request: NextRequest) {
   try {
-    // Fetch all content in parallel
-    const [heroContent, featuresContent, howItWorksContent] = await Promise.all([
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type')?.toUpperCase();
+
+    // If specific type requested, return only that
+    if (type) {
+      const content = await prisma.content.findUnique({
+        where: { type },
+      });
+
+      return NextResponse.json({
+        success: true,
+        data: content,
+      });
+    }
+
+    // Otherwise return all content
+    const [heroContent, featuresContent, howItWorksContent, roadmapContent, faqContent] = await Promise.all([
       prisma.content.findUnique({
         where: { type: 'HERO' },
       }),
@@ -17,6 +32,12 @@ export async function GET(request: NextRequest) {
       prisma.content.findUnique({
         where: { type: 'HOW_IT_WORKS' },
       }),
+      prisma.content.findUnique({
+        where: { type: 'ROADMAP' },
+      }),
+      prisma.content.findUnique({
+        where: { type: 'FAQ' },
+      }),
     ]);
 
     return NextResponse.json({
@@ -25,6 +46,8 @@ export async function GET(request: NextRequest) {
         hero: heroContent?.data || null,
         features: featuresContent?.data || null,
         howItWorks: howItWorksContent?.data || null,
+        roadmap: roadmapContent?.data || null,
+        faq: faqContent?.data || null,
       },
     });
   } catch (error) {

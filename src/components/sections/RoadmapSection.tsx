@@ -1,56 +1,34 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import PixelCard from "@/components/ui/PixelCard";
 
 export default function RoadmapSection() {
-  const roadmapItems = [
-    {
-      phase: "Phase 1",
-      quarter: "Q1 2025",
-      title: "Foundation",
-      status: "completed",
-      items: [
-        "✅ Concept & Design",
-        "✅ Smart Contract Development",
-        "✅ Website & dApp UI",
-        "✅ Testnet Deployment",
-      ],
-    },
-    {
-      phase: "Phase 2",
-      quarter: "Q2 2025",
-      title: "Alpha Launch",
-      status: "in-progress",
-      items: [
-        "🔄 Mainnet Deployment",
-        "🔄 Alpha Testing",
-        "🔄 NFT Marketplace",
-        "⏳ Community Building",
-      ],
-    },
-    {
-      phase: "Phase 3",
-      quarter: "Q3 2025",
-      title: "Beta & Expansion",
-      status: "upcoming",
-      items: [
-        "⏳ Public Beta Launch",
-        "⏳ PvP Mode",
-        "⏳ Tournaments",
-        "⏳ Mobile Version",
-      ],
-    },
-    {
-      phase: "Phase 4",
-      quarter: "Q4 2025",
-      title: "Full Release",
-      status: "upcoming",
-      items: [
-        "⏳ Official Launch",
-        "⏳ Cross-Chain Integration",
-        "⏳ DAO Governance",
-        "⏳ Metaverse Integration",
-      ],
-    },
-  ];
+  const [roadmapData, setRoadmapData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchRoadmapData();
+  }, []);
+
+  const fetchRoadmapData = async () => {
+    try {
+      const response = await fetch("/api/public/content?type=ROADMAP");
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        setRoadmapData(result.data.data);
+      }
+    } catch (error) {
+      console.error("Failed to load roadmap:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const roadmapItems = roadmapData?.items || [];
+  const title = roadmapData?.title || "Roadmap";
+  const subtitle = roadmapData?.subtitle || "Our journey to build the ultimate tower defense game on Monad";
 
   const statusColors = {
     completed: "border-pixel-primary bg-pixel-primary/10",
@@ -64,10 +42,10 @@ export default function RoadmapSection() {
         {/* Section Header */}
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-3xl md:text-5xl text-pixel-primary font-pixel text-shadow-pixel">
-            Roadmap
+            {title}
           </h2>
           <p className="text-sm md:text-base text-pixel-light/70 max-w-2xl mx-auto">
-            Our journey to build the ultimate tower defense game on Monad
+            {subtitle}
           </p>
         </div>
 
