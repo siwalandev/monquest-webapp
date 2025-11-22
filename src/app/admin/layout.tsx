@@ -3,6 +3,7 @@
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminTopBar from "@/components/admin/AdminTopBar";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import LoadingPage from "@/components/LoadingPage";
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -46,37 +47,24 @@ function ProtectedLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950">
-      <Toaster position="top-right" />
-      
-      {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-gray-900 border-b border-gray-800 z-30 flex items-center px-4">
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 transition-colors duration-100 -ml-2"
-          aria-label="Open menu"
-        >
-          <IoMenu className="text-2xl" />
-        </button>
+    <NotificationProvider>
+      <div className="min-h-screen bg-gray-950">
+        <Toaster position="top-right" />
         
-        <div className="flex-1 flex items-center justify-center">
-          <span className="text-lg font-bold text-white">MONQUEST</span>
-        </div>
-      </header>
-      
-      {/* Sidebar */}
-      <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      
-      {/* Top Bar */}
-      <AdminTopBar />
-      
-      {/* Main Content */}
-      <main className="flex-1 p-4 pt-24 sm:p-6 sm:pt-24 lg:p-8 lg:pt-28 lg:ml-64">
-        <div className="max-w-7xl mx-auto">
-          {children}
-        </div>
-      </main>
-    </div>
+        {/* Sidebar */}
+        <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        
+        {/* Top Bar - Shows on all screens */}
+        <AdminTopBar onMenuClick={() => setSidebarOpen(true)} />
+        
+        {/* Main Content */}
+        <main className="flex-1 p-4 pt-20 lg:p-8 lg:pt-24 lg:ml-64">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
+        </main>
+      </div>
+    </NotificationProvider>
   );
 }
 

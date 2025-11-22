@@ -193,22 +193,22 @@ export default function FeaturesContentPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center border-b-2 border-gray-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 border-b-2 border-gray-800 pb-6">
         <div>
-          <h1 className="text-3xl text-white font-bold mb-2">Manage Features</h1>
+          <h1 className="text-2xl sm:text-3xl text-white font-bold mb-2">Manage Features</h1>
           <p className="text-sm text-gray-400">Drag to reorder, click to edit or delete</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => saveFeatures(features)}
-            className="flex items-center gap-2 px-4 py-2 bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 min-h-[44px] bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
           >
             <IoSave className="text-xl" />
             Save
           </button>
           <button
             onClick={openAddModal}
-            className="flex items-center gap-2 px-4 py-2 bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 min-h-[44px] bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
           >
             <IoAdd className="text-xl" />
             Add Feature
@@ -222,7 +222,7 @@ export default function FeaturesContentPage() {
           <p className="text-gray-400 mb-4">No features yet</p>
           <button
             onClick={openAddModal}
-            className="px-4 py-2 bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
+            className="w-full sm:w-auto px-4 py-2 min-h-[44px] bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
           >
             Add First Feature
           </button>

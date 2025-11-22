@@ -1,0 +1,149 @@
+{
+  "taskName": "Admin Panel Dynamic Colors Implementation",
+  "description": "Replace static hardcoded colors in admin panel components with dynamic theme-aware colors from CSS variables",
+  "priority": "high",
+  "estimatedTime": "2-3 hours",
+  "scope": "Admin panel UI components (non-CRUD buttons, icons, info cards, ColorSelector)",
+  "excludes": [
+    "CRUD operation buttons (Add, Update, Delete, Save)",
+    "Text colors in cards",
+    "Loading screens (already done)",
+    "Sidebar (already done)"
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "title": "Update ColorSelector Component",
+      "description": "Replace hardcoded green-500, blue-500, orange-500 in ColorSelector with dynamic var(--pixel-primary), var(--pixel-secondary), var(--pixel-accent)",
+      "files": [
+        "src/components/ui/ColorSelector.tsx"
+      ],
+      "changes": [
+        "Replace border-green-500, bg-green-500/10, text-green-400 with border-pixel-primary, bg-pixel-primary/10, text-pixel-primary",
+        "Replace border-blue-500, bg-blue-500/10, text-blue-400 with border-pixel-secondary, bg-pixel-secondary/10, text-pixel-secondary",
+        "Replace border-orange-500, bg-orange-500/10, text-orange-400 with border-pixel-accent, bg-pixel-accent/10, text-pixel-accent"
+      ],
+      "reasoning": "ColorSelector shows theme preview but uses static colors instead of actual theme colors from database"
+    },
+    {
+      "id": 2,
+      "title": "Update Theme Settings Page Icons",
+      "description": "Replace static icon colors in admin/settings/theme/page.tsx with dynamic theme colors",
+      "files": [
+        "src/app/admin/settings/theme/page.tsx"
+      ],
+      "changes": [
+        "IoColorPalette icon: text-green-400 → text-pixel-primary",
+        "IoShieldCheckmark icon: text-blue-400 → text-pixel-secondary",
+        "Active badge: bg-blue-500/20 text-blue-400 border-blue-500 → bg-pixel-secondary/20 text-pixel-secondary border-pixel-secondary",
+        "IoCheckmark icon: text-green-400 → text-pixel-primary",
+        "Info box: bg-blue-500/10 border-blue-500 text-blue-400 → bg-pixel-secondary/10 border-pixel-secondary text-pixel-secondary"
+      ],
+      "reasoning": "Theme settings page should reflect current active theme colors in UI elements"
+    },
+    {
+      "id": 3,
+      "title": "Update Users Page Statistics Icons",
+      "description": "Replace static colors in user statistics cards with dynamic theme colors",
+      "files": [
+        "src/app/admin/users/page.tsx"
+      ],
+      "changes": [
+        "Total Users card: text-green-400 → text-pixel-primary (icon + number)",
+        "Total Roles card: text-blue-400 → text-pixel-secondary (icon + number)",
+        "Super Admins card: text-green-400 → text-pixel-primary (icon + number)",
+        "Action buttons: Keep red for delete, change edit button text-blue-400 → text-pixel-secondary"
+      ],
+      "reasoning": "Statistics cards should use theme colors for visual consistency"
+    },
+    {
+      "id": 4,
+      "title": "Update Roadmap Status Selector Colors",
+      "description": "Make roadmap status selector use theme colors",
+      "files": [
+        "src/app/admin/content/roadmap/page.tsx"
+      ],
+      "changes": [
+        "Status selector statusColors object:",
+        "  - completed: border-green-500 bg-green-500/10 text-green-400 → border-pixel-primary bg-pixel-primary/10 text-pixel-primary",
+        "  - in-progress: border-blue-500 bg-blue-500/10 text-blue-400 → border-pixel-secondary bg-pixel-secondary/10 text-pixel-secondary",
+        "Quarter badge: text-green-400 → text-pixel-primary",
+        "Add Item button small text: text-green-400 hover:text-green-300 → text-pixel-primary hover:brightness-110"
+      ],
+      "reasoning": "Roadmap status colors should follow active theme for consistency"
+    },
+    {
+      "id": 5,
+      "title": "Update Input Focus Border Colors",
+      "description": "Change all input focus:border-green-500 to focus:border-pixel-primary across admin pages",
+      "files": [
+        "src/app/admin/content/faq/page.tsx",
+        "src/app/admin/content/how-it-works/page.tsx",
+        "src/app/admin/content/roadmap/page.tsx",
+        "src/app/admin/users/page.tsx"
+      ],
+      "changes": [
+        "Find all inputs with focus:border-green-500",
+        "Replace with focus:border-pixel-primary",
+        "This affects: Question input, Answer textarea, Phase input, Quarter input, Title input, etc."
+      ],
+      "reasoning": "Input focus states should use primary theme color for consistent interaction feedback"
+    },
+    {
+      "id": 6,
+      "title": "Add Dynamic Color Utility Classes",
+      "description": "Add Tailwind config for dynamic theme color utilities if needed",
+      "files": [
+        "tailwind.config.ts"
+      ],
+      "changes": [
+        "Verify border-pixel-primary, border-pixel-secondary, border-pixel-accent are defined",
+        "Verify bg-pixel-primary/10, bg-pixel-secondary/10, bg-pixel-accent/10 work correctly",
+        "Add any missing utility classes for dynamic colors"
+      ],
+      "reasoning": "Ensure all color utilities are properly configured in Tailwind"
+    },
+    {
+      "id": 7,
+      "title": "Test Color Changes Across All Themes",
+      "description": "Verify all updated components render correctly with each theme preset",
+      "testCases": [
+        "Switch to Default theme → Check ColorSelector, icons, inputs",
+        "Switch to Cyberpunk theme → Verify pink/purple colors appear",
+        "Switch to Ocean theme → Verify blue/cyan colors appear",
+        "Switch to Sunset theme → Verify orange/red colors appear",
+        "Test input focus states in all themes",
+        "Test roadmap status selector in all themes",
+        "Test user statistics cards in all themes"
+      ],
+      "reasoning": "Ensure dynamic colors work correctly across all theme presets"
+    }
+  ],
+  "technicalNotes": {
+    "cssVariables": [
+      "--pixel-primary: Theme primary color (e.g., green, pink, blue)",
+      "--pixel-secondary: Theme secondary color (e.g., blue, purple, cyan)",
+      "--pixel-accent: Theme accent color (e.g., orange, red, yellow)"
+    ],
+    "tailwindClasses": {
+      "text": "text-pixel-primary, text-pixel-secondary, text-pixel-accent",
+      "background": "bg-pixel-primary, bg-pixel-secondary, bg-pixel-accent",
+      "border": "border-pixel-primary, border-pixel-secondary, border-pixel-accent",
+      "opacity": "bg-pixel-primary/10, bg-pixel-primary/20 (works with arbitrary opacity)"
+    },
+    "excluded": {
+      "crudButtons": "Green/Red buttons for Add/Save/Update/Delete remain static for clarity",
+      "textContent": "Gray text colors in cards remain for readability",
+      "dangerActions": "Red delete/danger buttons remain red for safety"
+    }
+  },
+  "successCriteria": [
+    "ColorSelector buttons show actual theme colors (not static green/blue/orange)",
+    "Theme settings page icons use current theme colors",
+    "User statistics cards use theme colors for icons and numbers",
+    "Input focus borders use primary theme color",
+    "Roadmap status selector uses theme colors",
+    "All changes work correctly when switching between themes",
+    "No visual regressions in admin panel"
+  ]
+}

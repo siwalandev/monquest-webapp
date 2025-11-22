@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { fetchWithNotification } from "@/lib/notificationHelper";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, rectSortingStrategy } from "@dnd-kit/sortable";
 import DraggableCard from "@/components/ui/DraggableCard";
@@ -125,8 +126,10 @@ export default function HeroContentPage() {
 
     setIsSaving(true);
     try {
-      const response = await authFetch("/api/content/hero", {
+      const response = await fetchWithNotification("/api/content/hero", {
         method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           data: heroData,
           userId: user.id,
@@ -295,15 +298,15 @@ export default function HeroContentPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center border-b-2 border-gray-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 border-b-2 border-gray-800 pb-6">
         <div>
-          <h1 className="text-3xl text-white font-bold mb-2">Edit Hero Section</h1>
+          <h1 className="text-2xl sm:text-3xl text-white font-bold mb-2">Edit Hero Section</h1>
           <p className="text-sm text-gray-400">Update main landing page hero content</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => window.open("/", "_blank")}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white font-medium transition-all duration-100"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 min-h-[44px] bg-gray-800 hover:bg-gray-700 text-white font-medium transition-all duration-100"
           >
             <IoEye className="text-xl" />
             Preview
@@ -311,7 +314,7 @@ export default function HeroContentPage() {
           <button
             onClick={() => saveHeroData()}
             disabled={isSaving}
-            className="flex items-center gap-2 px-4 py-2 bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 min-h-[44px] bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100 disabled:opacity-50"
           >
             <IoSave className="text-xl" />
             {isSaving ? "Saving..." : "Save Changes"}
@@ -320,7 +323,7 @@ export default function HeroContentPage() {
       </div>
 
       {/* Basic Info */}
-      <div className="bg-gray-900 border-2 border-gray-800 p-6 space-y-4">
+      <div className="bg-gray-900 border-2 border-gray-800 p-4 sm:p-6 space-y-4">
         <h2 className="text-xl font-bold text-white mb-4">Basic Information</h2>
         
         <div>
@@ -358,15 +361,15 @@ export default function HeroContentPage() {
       </div>
 
       {/* CTA Buttons */}
-      <div className="bg-gray-900 border-2 border-gray-800 p-6">
-        <div className="flex justify-between items-center mb-4">
+      <div className="bg-gray-900 border-2 border-gray-800 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
           <h2 className="text-xl font-bold text-white">
             CTA Buttons <span className="text-sm text-gray-500">({heroData.ctaButtons.length}/3)</span>
           </h2>
           <button
             onClick={openAddCtaModal}
             disabled={heroData.ctaButtons.length >= 3}
-            className="flex items-center gap-2 px-3 py-1.5 bg-pixel-primary hover:brightness-110 text-white text-sm font-medium transition-all duration-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-1.5 min-h-[44px] sm:min-h-0 bg-pixel-primary hover:brightness-110 text-white text-sm font-medium transition-all duration-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <IoAdd className="text-lg" />
             Add Button
@@ -388,18 +391,18 @@ export default function HeroContentPage() {
                     onEdit={() => openEditCtaModal(cta)}
                     onDelete={() => setDeleteConfirm({ isOpen: true, type: "cta", item: cta })}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-lg bg-gray-800 ${
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className={`p-2 rounded-lg bg-gray-800 flex-shrink-0 text-lg sm:text-xl ${
                         cta.variant === 'primary' ? 'text-pixel-primary' :
                         cta.variant === 'secondary' ? 'text-pixel-secondary' :
                         'text-pixel-accent'
                       }`}>
                         {getIcon(cta.icon)}
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-base font-bold text-white">{cta.text}</h3>
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium bg-gray-800 ${
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1 flex-wrap">
+                          <h3 className="text-sm sm:text-base font-bold text-white truncate">{cta.text}</h3>
+                          <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full font-medium bg-gray-800 whitespace-nowrap ${
                             cta.variant === 'primary' ? 'text-pixel-primary' :
                             cta.variant === 'secondary' ? 'text-pixel-secondary' :
                             'text-pixel-accent'
@@ -407,7 +410,7 @@ export default function HeroContentPage() {
                             {cta.variant}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-400">{cta.link}</p>
+                        <p className="text-[10px] sm:text-xs text-gray-400 truncate">{cta.link}</p>
                       </div>
                     </div>
                   </DraggableCard>
@@ -419,15 +422,15 @@ export default function HeroContentPage() {
       </div>
 
       {/* Stats */}
-      <div className="bg-gray-900 border-2 border-gray-800 p-6">
-        <div className="flex justify-between items-center mb-4">
+      <div className="bg-gray-900 border-2 border-gray-800 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
           <h2 className="text-xl font-bold text-white">
             Statistics <span className="text-sm text-gray-500">({heroData.stats.length}/6)</span>
           </h2>
           <button
             onClick={openAddStatModal}
             disabled={heroData.stats.length >= 6}
-            className="flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-all duration-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-1.5 min-h-[44px] sm:min-h-0 bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-all duration-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <IoAdd className="text-lg" />
             Add Stat
@@ -441,7 +444,7 @@ export default function HeroContentPage() {
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleStatDragEnd}>
             <SortableContext items={heroData.stats.map((s) => s.id)} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {heroData.stats.map((stat) => (
                   <DraggableCard
                     key={stat.id}
@@ -450,8 +453,8 @@ export default function HeroContentPage() {
                     onDelete={() => setDeleteConfirm({ isOpen: true, type: "stat", item: stat })}
                   >
                     <div>
-                      <div className="text-xl font-bold text-pixel-primary mb-1">{stat.value}</div>
-                      <div className="text-sm text-gray-400">{stat.label}</div>
+                      <div className="text-lg sm:text-xl font-bold text-pixel-primary mb-0.5 sm:mb-1">{stat.value}</div>
+                      <div className="text-xs sm:text-sm text-gray-400">{stat.label}</div>
                     </div>
                   </DraggableCard>
                 ))}
@@ -471,13 +474,13 @@ export default function HeroContentPage() {
           <>
             <button
               onClick={() => setCtaModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-100"
+              className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-all duration-100"
             >
               Cancel
             </button>
             <button
               onClick={handleCtaSubmit}
-              className="px-4 py-2 text-sm font-medium bg-pixel-primary hover:brightness-110 text-white transition-all duration-100"
+              className="w-full sm:w-auto px-4 py-2 min-h-[44px] text-sm font-medium bg-pixel-primary hover:brightness-110 text-white transition-all duration-100"
             >
               {editingCta ? "Update" : "Add"} CTA
             </button>

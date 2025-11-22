@@ -43,38 +43,38 @@ export default function DraggableCard({
         ${isDragging ? "scale-95" : ""}
       `}
     >
-      <div className="flex items-center gap-3 p-4">
+      <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4">
         {/* Drag Handle */}
         <button
           {...attributes}
           {...listeners}
-          className="text-gray-600 hover:text-gray-400 cursor-grab active:cursor-grabbing transition-colors duration-100"
+          className="text-gray-600 hover:text-gray-400 cursor-grab active:cursor-grabbing transition-colors duration-100 flex-shrink-0"
           aria-label="Drag to reorder"
         >
-          <IoMenu className="text-xl" />
+          <IoMenu className="text-lg sm:text-xl" />
         </button>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">{children}</div>
+        <div className="flex-1 min-w-0 overflow-hidden">{children}</div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
           {onEdit && (
             <button
               onClick={onEdit}
-              className="p-2 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 transition-all duration-100"
+              className="p-1.5 sm:p-2 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 transition-all duration-100"
               aria-label="Edit"
             >
-              <IoCreate className="text-lg" />
+              <IoCreate className="text-base sm:text-lg" />
             </button>
           )}
           {onDelete && (
             <button
               onClick={onDelete}
-              className="p-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-100"
+              className="p-1.5 sm:p-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-100"
               aria-label="Delete"
             >
-              <IoTrash className="text-lg" />
+              <IoTrash className="text-base sm:text-lg" />
             </button>
           )}
         </div>

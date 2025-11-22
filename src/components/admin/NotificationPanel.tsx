@@ -18,11 +18,13 @@ interface Notification {
 interface NotificationPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  onNotificationChange?: () => void;
 }
 
 export default function NotificationPanel({
   isOpen,
   onClose,
+  onNotificationChange,
 }: NotificationPanelProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [page, setPage] = useState(1);
@@ -68,6 +70,8 @@ export default function NotificationPanel({
         setNotifications((prev) =>
           prev.map((n) => (n.id === id ? { ...n, read: true } : n))
         );
+        // Trigger badge refresh
+        onNotificationChange?.();
       }
     } catch (error) {
       console.error("Mark as read error:", error);
@@ -85,6 +89,8 @@ export default function NotificationPanel({
         setNotifications((prev) => prev.filter((n) => n.id !== id));
         setTotal((prev) => prev - 1);
         toast.success("Notification deleted");
+        // Trigger badge refresh
+        onNotificationChange?.();
       }
     } catch (error) {
       console.error("Delete notification error:", error);
@@ -102,6 +108,8 @@ export default function NotificationPanel({
         setNotifications([]);
         setTotal(0);
         toast.success("All notifications cleared");
+        // Trigger badge refresh
+        onNotificationChange?.();
       }
     } catch (error) {
       console.error("Clear all error:", error);
@@ -260,38 +268,36 @@ export default function NotificationPanel({
                         >
                           {notification.title}
                         </h3>
-                        <div className="flex items-center gap-1">
-                          {!notification.read && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleMarkAsRead(notification.id);
-                              }}
-                              className="p-1 text-pixel-primary hover:brightness-110 transition-all duration-100"
-                              aria-label="Mark as read"
-                              title="Mark as read"
-                            >
-                              <IoCheckmarkCircle className="text-base" />
-                            </button>
-                          )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(notification.id);
-                            }}
-                            className="p-1 text-gray-500 hover:text-red-400 transition-colors duration-100"
-                            aria-label="Delete notification"
-                          >
-                            <IoTrash className="text-sm" />
-                          </button>
-                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(notification.id);
+                          }}
+                          className="p-1 text-gray-500 hover:text-red-400 transition-colors duration-100"
+                          aria-label="Delete notification"
+                        >
+                          <IoTrash className="text-sm" />
+                        </button>
                       </div>
                       <p className="text-xs text-gray-400 mb-2 leading-relaxed">
                         {notification.message}
                       </p>
-                      <span className="text-xs text-gray-500">
-                        {formatTimestamp(notification.createdAt)}
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500">
+                          {formatTimestamp(notification.createdAt)}
+                        </span>
+                        {!notification.read && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMarkAsRead(notification.id);
+                            }}
+                            className="text-xs text-pixel-primary hover:brightness-110 font-medium transition-all duration-100"
+                          >
+                            Mark as read
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

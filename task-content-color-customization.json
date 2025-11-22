@@ -1,0 +1,221 @@
+{
+  "taskName": "Add Color Customization to All Content Types",
+  "description": "Implement color theme selection (primary/secondary/accent) for FAQ, Roadmap, and How It Works content management to match Features functionality",
+  "priority": "medium",
+  "estimatedTime": "2-3 hours",
+  "dependencies": [
+    "Existing Features color system (reference implementation)",
+    "Content API endpoints (/api/content/*)",
+    "PixelCard component with glowColor prop"
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "title": "Update Database Schema & Models",
+      "description": "Add color field to FAQ, Roadmap, and HowItWorks content types in database",
+      "files": [
+        "prisma/schema.prisma - No changes needed (JSON storage already flexible)",
+        "Database will store color in existing JSON data field"
+      ],
+      "tasks": [
+        "Verify Content model JSON field supports color property",
+        "Run database migration if schema changes needed",
+        "Seed default color values for existing records"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Update FAQ Admin Page - Add Color Field",
+      "description": "Add color selector to FAQ item form, similar to Features implementation",
+      "files": [
+        "src/app/admin/content/faq/page.tsx"
+      ],
+      "tasks": [
+        "Add color field to FAQItem interface (line 17-22)",
+        "Add color to itemForm state (line 41-44)",
+        "Add color selector dropdown in Modal (after answer textarea)",
+        "Update handleAddItem to include default color: 'secondary'",
+        "Update handleEditItem to preserve color",
+        "Add color badge to preview cards (like Features line 233-235)",
+        "Update saveFAQData to include color in payload"
+      ],
+      "codeReference": "src/app/admin/content/features/page.tsx lines 311-330 (Color selector implementation)"
+    },
+    {
+      "id": 3,
+      "title": "Update FAQ Frontend Component",
+      "description": "Make FAQ cards use dynamic color from database",
+      "files": [
+        "src/components/sections/FAQSection.tsx"
+      ],
+      "tasks": [
+        "Add color field to FAQ interface",
+        "Update PixelCard glowColor prop from hardcoded 'secondary' to dynamic faq.color",
+        "Handle fallback for old data without color field (default: 'secondary')"
+      ],
+      "currentCode": "Line 49: <PixelCard key={index} glowColor=\"secondary\">",
+      "newCode": "<PixelCard key={index} glowColor={faq.color || 'secondary'}>"
+    },
+    {
+      "id": 4,
+      "title": "Update Roadmap Admin Page - Add Color Field",
+      "description": "Add color customization to Roadmap phase management",
+      "files": [
+        "src/app/admin/content/roadmap/page.tsx"
+      ],
+      "tasks": [
+        "Add color field to Phase interface",
+        "Add color to phaseForm state",
+        "Add color selector in phase modal form",
+        "Update handleAddPhase with default color: 'primary'",
+        "Update handleEditPhase to preserve color",
+        "Add color badge to phase preview cards",
+        "Update saveRoadmap to include color in payload"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Update Roadmap Frontend Component",
+      "description": "Make Roadmap phase cards use dynamic color",
+      "files": [
+        "src/components/sections/RoadmapSection.tsx"
+      ],
+      "tasks": [
+        "Add color field to Phase interface",
+        "Update PixelCard glowColor from hardcoded to dynamic phase.color",
+        "Handle fallback for phases without color (default: 'primary')"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Update How It Works Admin Page - Add Color Field",
+      "description": "Add color customization to How It Works steps",
+      "files": [
+        "src/app/admin/content/how-it-works/page.tsx"
+      ],
+      "tasks": [
+        "Add color field to Step interface",
+        "Add color to stepForm state",
+        "Add color selector in step modal",
+        "Update handleAddStep with default color: 'secondary'",
+        "Update handleEditStep to preserve color",
+        "Add color badge to step preview",
+        "Update saveSteps to include color"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Update How It Works Frontend Component",
+      "description": "Make How It Works cards use dynamic color",
+      "files": [
+        "src/components/sections/HowItWorksSection.tsx"
+      ],
+      "tasks": [
+        "Add color field to Step interface (line 7-12)",
+        "Update PixelCard glowColor from hardcoded 'secondary' to dynamic step.color",
+        "Handle fallback for steps without color (default: 'secondary')"
+      ],
+      "currentCode": "Line 95: <PixelCard glowColor=\"secondary\" className=\"h-full\">",
+      "newCode": "<PixelCard glowColor={step.color || 'secondary'} className=\"h-full\">"
+    },
+    {
+      "id": 8,
+      "title": "Create Reusable Color Selector Component",
+      "description": "Extract color selector into reusable component to avoid duplication",
+      "files": [
+        "src/components/ui/ColorSelector.tsx (NEW)"
+      ],
+      "tasks": [
+        "Create ColorSelector component with primary/secondary/accent options",
+        "Add visual color preview badges",
+        "Make it controlled component (value + onChange props)",
+        "Replace inline selectors in all admin pages with this component"
+      ],
+      "optional": true,
+      "note": "This can be done later for better code organization"
+    },
+    {
+      "id": 9,
+      "title": "Update API Routes to Handle Color Field",
+      "description": "Ensure all content APIs properly store and return color field",
+      "files": [
+        "src/app/api/content/faq/route.ts",
+        "src/app/api/content/roadmap/route.ts",
+        "src/app/api/content/how-it-works/route.ts"
+      ],
+      "tasks": [
+        "Verify PUT endpoints accept color field in request body",
+        "Verify GET endpoints return color field in response",
+        "Add color field validation (must be 'primary' | 'secondary' | 'accent')",
+        "Test with Postman/Thunder Client"
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Database Migration & Seeding",
+      "description": "Add default colors to existing content records",
+      "files": [
+        "prisma/seed.ts or create new migration script"
+      ],
+      "tasks": [
+        "Update seed script to include color field for all content types",
+        "Create migration script to add color to existing FAQ items (default: 'secondary')",
+        "Create migration script to add color to existing Roadmap phases (default: 'primary')",
+        "Create migration script to add color to existing How It Works steps (default: 'secondary')",
+        "Run migration on production database"
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Testing & Validation",
+      "description": "Test color customization across all content types",
+      "tasks": [
+        "Test FAQ color change: Create FAQ → Set color to primary → Save → Verify frontend shows primary color",
+        "Test Roadmap color change: Edit phase → Change to accent → Save → Verify frontend updated",
+        "Test How It Works color change: Edit step → Change to secondary → Save → Verify card color",
+        "Test with all 3 theme presets (Default/Cyberpunk/Ocean) to ensure colors adapt",
+        "Test backward compatibility: Old records without color should use defaults",
+        "Test permission guard: Non-admin users can't access content management",
+        "Test mobile responsive: Color selectors work on small screens"
+      ]
+    }
+  ],
+  "technicalNotes": {
+    "colorOptions": [
+      {
+        "value": "primary",
+        "label": "Primary (Green/Pink/Blue based on theme)",
+        "cssVar": "--pixel-primary"
+      },
+      {
+        "value": "secondary",
+        "label": "Secondary (Blue/Cyan/Teal based on theme)",
+        "cssVar": "--pixel-secondary"
+      },
+      {
+        "value": "accent",
+        "label": "Accent (Orange/Pink/Yellow based on theme)",
+        "cssVar": "--pixel-accent"
+      }
+    ],
+    "implementationPattern": "Follow Features color implementation as reference. Key pattern: Add color field to interface → Add to form state → Add selector in modal → Update save handler → Pass to PixelCard glowColor prop",
+    "fallbackStrategy": "Always provide default color for backward compatibility with old data that doesn't have color field",
+    "themeIntegration": "Colors automatically adapt to active theme (Default/Cyberpunk/Ocean/Sunset) via CSS variables"
+  },
+  "completionCriteria": [
+    "All FAQ items can have custom color selected in admin",
+    "All Roadmap phases can have custom color selected in admin",
+    "All How It Works steps can have custom color selected in admin",
+    "Frontend components properly display selected colors",
+    "Colors adapt correctly to theme changes (Cyberpunk → pink/cyan, Ocean → blue, etc)",
+    "Old content without color field still displays with default colors",
+    "No breaking changes to existing content",
+    "All tests pass"
+  ],
+  "estimatedImpact": {
+    "userExperience": "Admin can customize visual hierarchy and emphasis of different content sections using color",
+    "codebase": "Medium impact - touches 9 files, adds ~200 lines of code total",
+    "database": "Low impact - no schema changes, just JSON field additions",
+    "performance": "No impact - color is just a prop passed to existing components"
+  }
+}

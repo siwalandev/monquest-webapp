@@ -1,0 +1,26 @@
+{
+  "style": "pixel art, 32x32, retro RPG, Small characters",
+  "character": {
+    "type": "people",
+    "subtype": "archer",
+    "color_scheme": {
+      "primary": "forest green",
+      "secondary": "brown",
+      "accent": "blue eyes"
+    },
+    "pose": "standing",
+    "equipment": { "weapon": "bow", "armor": "none", "props": "none" },
+    "expression": "menacing"
+  },
+  "background": { "type": "plain", "color": "white" },
+  "composition": {
+    "camera_view": "front-facing",
+    "position": "center",
+    "outline_strength": "medium"
+  },
+  "extras": {
+    "shadows": "soft",
+    "vibe": "dark fantasy",
+    "special_effects": "none"
+  }
+}

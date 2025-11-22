@@ -221,16 +221,16 @@ export default function HowItWorksContentPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center border-b-2 border-gray-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 border-b-2 border-gray-800 pb-6">
         <div>
-          <h1 className="text-3xl text-white font-bold mb-2">Edit How It Works</h1>
+          <h1 className="text-2xl sm:text-3xl text-white font-bold mb-2">Edit How It Works</h1>
           <p className="text-sm text-gray-400">Update the step-by-step guide</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => saveHowItWorksData()}
             disabled={isSaving}
-            className="flex items-center gap-2 px-4 py-2 bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 min-h-[44px] bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100 disabled:opacity-50"
           >
             <IoSave className="text-xl" />
             {isSaving ? "Saving..." : "Save Changes"}
@@ -239,7 +239,7 @@ export default function HowItWorksContentPage() {
       </div>
 
       {/* Basic Info */}
-      <div className="bg-gray-900 border-2 border-gray-800 p-6 space-y-4">
+      <div className="bg-gray-900 border-2 border-gray-800 p-4 sm:p-6 space-y-4">
         <h2 className="text-xl font-bold text-white mb-4">Section Information</h2>
 
         <div>
@@ -270,14 +270,14 @@ export default function HowItWorksContentPage() {
       </div>
 
       {/* Steps */}
-      <div className="bg-gray-900 border-2 border-gray-800 p-6">
-        <div className="flex justify-between items-center mb-4">
+      <div className="bg-gray-900 border-2 border-gray-800 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
           <h2 className="text-xl font-bold text-white">
             Steps <span className="text-sm text-gray-500">({howItWorksData.steps.length})</span>
           </h2>
           <button
             onClick={openAddStepModal}
-            className="flex items-center gap-2 px-3 py-1.5 bg-pixel-primary hover:brightness-110 text-white text-sm font-medium transition-all duration-100"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-1.5 min-h-[44px] sm:min-h-0 bg-pixel-primary hover:brightness-110 text-white text-sm font-medium transition-all duration-100"
           >
             <IoAdd className="text-lg" />
             Add Step
@@ -289,7 +289,7 @@ export default function HowItWorksContentPage() {
             <p className="text-gray-500 mb-4">No steps yet. Add your first step!</p>
             <button
               onClick={openAddStepModal}
-              className="px-4 py-2 bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
+              className="w-full sm:w-auto px-4 py-2 min-h-[44px] bg-pixel-primary hover:brightness-110 text-white font-medium transition-all duration-100"
             >
               Add First Step
             </button>

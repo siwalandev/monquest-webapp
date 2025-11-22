@@ -1,0 +1,456 @@
+{
+  "taskName": "Roadmap & FAQ Content Management",
+  "description": "Membuat halaman admin untuk manage Roadmap dan FAQ sections menggunakan komponen reusable yang sudah ada (DraggableCard, Modal, IconPicker, dll)",
+  "priority": "HIGH",
+  "estimatedTime": "3-4 hours",
+  "dependencies": [
+    "@dnd-kit/core",
+    "@dnd-kit/sortable",
+    "react-icons",
+    "nanoid",
+    "react-hot-toast"
+  ],
+  "reusableComponents": [
+    "DraggableCard - untuk drag & drop ordering",
+    "Modal - untuk add/edit forms",
+    "ConfirmModal - untuk delete confirmation",
+    "IconPicker - untuk icon selection",
+    "PermissionGuard - untuk permission checking"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "title": "Create Roadmap API Routes",
+      "description": "Buat GET dan PUT endpoints untuk roadmap content",
+      "file": "src/app/api/content/roadmap/route.ts",
+      "implementation": {
+        "method": "Create new file",
+        "structure": "Copy from how-it-works/route.ts dan adjust untuk roadmap",
+        "contentType": "ROADMAP",
+        "dataStructure": {
+          "title": "string",
+          "subtitle": "string",
+          "items": [
+            {
+              "id": "string",
+              "phase": "string (Phase 1, Phase 2, etc)",
+              "quarter": "string (Q1 2025)",
+              "title": "string (Foundation, Alpha Launch)",
+              "status": "enum (completed | in-progress | upcoming)",
+              "items": "string[] (checklist items)",
+              "order": "number"
+            }
+          ]
+        }
+      },
+      "testCases": [
+        "GET /api/content/roadmap mengembalikan data roadmap",
+        "PUT /api/content/roadmap menyimpan perubahan dengan userId",
+        "Data tersimpan ke database dengan format JSON yang benar"
+      ]
+    },
+    {
+      "step": 2,
+      "title": "Create Roadmap Admin Page",
+      "description": "Buat halaman admin untuk manage roadmap phases",
+      "file": "src/app/admin/content/roadmap/page.tsx",
+      "implementation": {
+        "baseTemplate": "Copy from how-it-works/page.tsx",
+        "modifications": [
+          "State management untuk roadmap items (phases)",
+          "Form fields: phase, quarter, title, status, items (array of strings)",
+          "Status selector dengan 3 options: completed, in-progress, upcoming",
+          "Checklist items input (dynamic array of strings)",
+          "Drag & drop untuk reorder phases",
+          "Color coding based on status"
+        ],
+        "formFields": [
+          {
+            "field": "phase",
+            "type": "text",
+            "required": true,
+            "placeholder": "Phase 1"
+          },
+          {
+            "field": "quarter",
+            "type": "text",
+            "required": true,
+            "placeholder": "Q1 2025"
+          },
+          {
+            "field": "title",
+            "type": "text",
+            "required": true,
+            "placeholder": "Foundation"
+          },
+          {
+            "field": "status",
+            "type": "select",
+            "required": true,
+            "options": ["completed", "in-progress", "upcoming"]
+          },
+          {
+            "field": "items",
+            "type": "array-text",
+            "required": true,
+            "description": "Dynamic array dengan add/remove buttons untuk checklist items"
+          }
+        ],
+        "components": [
+          "DraggableCard untuk display roadmap phases",
+          "Modal untuk add/edit phase",
+          "ConfirmModal untuk delete",
+          "Status badge dengan color coding",
+          "Dynamic checklist items input"
+        ]
+      },
+      "testCases": [
+        "Bisa add, edit, delete roadmap phases",
+        "Drag & drop reordering berfungsi",
+        "Status selector dengan 3 options",
+        "Checklist items bisa add/remove dinamis",
+        "Data tersimpan dan muncul di frontend",
+        "Mobile responsive"
+      ]
+    },
+    {
+      "step": 3,
+      "title": "Update Roadmap Frontend Section",
+      "description": "Update RoadmapSection.tsx untuk fetch data dari API",
+      "file": "src/components/sections/RoadmapSection.tsx",
+      "implementation": {
+        "changes": [
+          "Ganti hardcoded data dengan useState",
+          "Tambah useEffect untuk fetch dari /api/public/content?type=ROADMAP",
+          "Loading state saat fetch",
+          "Error handling jika API gagal",
+          "Fallback ke hardcoded data jika API error"
+        ],
+        "apiIntegration": {
+          "endpoint": "/api/public/content?type=ROADMAP",
+          "method": "GET",
+          "response": "{ success: boolean, data: { data: { title, subtitle, items } } }"
+        }
+      },
+      "testCases": [
+        "Data roadmap muncul dari database",
+        "Loading state saat fetch",
+        "Fallback ke hardcoded jika error",
+        "Order sesuai dengan admin panel",
+        "Status color correct"
+      ]
+    },
+    {
+      "step": 4,
+      "title": "Create FAQ API Routes",
+      "description": "Buat GET dan PUT endpoints untuk FAQ content",
+      "file": "src/app/api/content/faq/route.ts",
+      "implementation": {
+        "method": "Create new file",
+        "structure": "Copy from how-it-works/route.ts dan adjust untuk FAQ",
+        "contentType": "FAQ",
+        "dataStructure": {
+          "title": "string",
+          "subtitle": "string",
+          "items": [
+            {
+              "id": "string",
+              "question": "string",
+              "answer": "string",
+              "order": "number"
+            }
+          ]
+        }
+      },
+      "testCases": [
+        "GET /api/content/faq mengembalikan FAQ data",
+        "PUT /api/content/faq menyimpan perubahan",
+        "Order FAQ items bisa diubah"
+      ]
+    },
+    {
+      "step": 5,
+      "title": "Create FAQ Admin Page",
+      "description": "Buat halaman admin untuk manage FAQ items",
+      "file": "src/app/admin/content/faq/page.tsx",
+      "implementation": {
+        "baseTemplate": "Copy from how-it-works/page.tsx",
+        "modifications": [
+          "State management untuk FAQ items",
+          "Form fields: question, answer (textarea)",
+          "NO icon picker (FAQ tidak pakai icon)",
+          "Drag & drop untuk reorder FAQs",
+          "Preview accordion di admin page"
+        ],
+        "formFields": [
+          {
+            "field": "question",
+            "type": "text",
+            "required": true,
+            "placeholder": "What is Monquest?"
+          },
+          {
+            "field": "answer",
+            "type": "textarea",
+            "required": true,
+            "rows": 6,
+            "placeholder": "Monquest is a pixel-art tower defense game..."
+          }
+        ],
+        "components": [
+          "DraggableCard untuk display FAQ items",
+          "Modal untuk add/edit FAQ",
+          "ConfirmModal untuk delete",
+          "NO IconPicker needed",
+          "Simple accordion preview"
+        ]
+      },
+      "testCases": [
+        "Bisa add, edit, delete FAQ items",
+        "Drag & drop reordering berfungsi",
+        "Question dan answer tersimpan",
+        "Data muncul di frontend dengan accordion",
+        "Mobile responsive"
+      ]
+    },
+    {
+      "step": 6,
+      "title": "Update FAQ Frontend Section",
+      "description": "Update FAQSection.tsx untuk fetch data dari API",
+      "file": "src/components/sections/FAQSection.tsx",
+      "implementation": {
+        "changes": [
+          "Ganti hardcoded FAQs dengan useState",
+          "Tambah useEffect untuk fetch dari /api/public/content?type=FAQ",
+          "Loading state saat fetch",
+          "Error handling jika API gagal",
+          "Fallback ke hardcoded data jika error",
+          "Accordion state tetap per-item (openIndex)"
+        ],
+        "apiIntegration": {
+          "endpoint": "/api/public/content?type=FAQ",
+          "method": "GET",
+          "response": "{ success: boolean, data: { data: { title, subtitle, items } } }"
+        }
+      },
+      "testCases": [
+        "FAQ data muncul dari database",
+        "Accordion expand/collapse berfungsi",
+        "Order sesuai dengan admin panel",
+        "Loading state proper",
+        "Fallback jika error"
+      ]
+    },
+    {
+      "step": 7,
+      "title": "Update Public Content API",
+      "description": "Pastikan /api/public/content mendukung ROADMAP dan FAQ",
+      "file": "src/app/api/public/content/route.ts",
+      "implementation": {
+        "changes": [
+          "Tambah case untuk type=ROADMAP",
+          "Tambah case untuk type=FAQ",
+          "Return data dengan format consistent"
+        ],
+        "existingCode": "Already supports HERO, FEATURES, HOW_IT_WORKS",
+        "newCases": [
+          "case 'ROADMAP': return roadmap content",
+          "case 'FAQ': return FAQ content"
+        ]
+      },
+      "testCases": [
+        "GET /api/public/content?type=ROADMAP works",
+        "GET /api/public/content?type=FAQ works",
+        "Response format consistent dengan content types lain"
+      ]
+    },
+    {
+      "step": 8,
+      "title": "Seed Initial Data (Optional)",
+      "description": "Tambah seed data untuk roadmap dan FAQ",
+      "file": "prisma/seed.ts",
+      "implementation": {
+        "method": "Add to existing seed",
+        "roadmapSeed": {
+          "type": "ROADMAP",
+          "data": {
+            "title": "Roadmap",
+            "subtitle": "Our journey to build the ultimate tower defense game",
+            "items": "4 phases dari RoadmapSection.tsx"
+          }
+        },
+        "faqSeed": {
+          "type": "FAQ",
+          "data": {
+            "title": "FAQ",
+            "subtitle": "Got questions? We've got answers!",
+            "items": "6 FAQs dari FAQSection.tsx"
+          }
+        }
+      },
+      "command": "npm run prisma:seed",
+      "testCases": [
+        "Seed berhasil tanpa error",
+        "Data roadmap dan FAQ muncul di database",
+        "Admin panel bisa load data seed"
+      ]
+    },
+    {
+      "step": 9,
+      "title": "Test Integration & Mobile Responsive",
+      "description": "Testing end-to-end untuk roadmap dan FAQ",
+      "testScenarios": [
+        {
+          "scenario": "Roadmap Management",
+          "steps": [
+            "Login ke admin panel",
+            "Buka /admin/content/roadmap",
+            "Add new phase dengan semua fields",
+            "Drag & drop untuk reorder",
+            "Edit existing phase",
+            "Delete phase dengan confirmation",
+            "Save changes",
+            "Refresh dan verify data tersimpan",
+            "Check frontend /",
+            "Verify roadmap section updated"
+          ]
+        },
+        {
+          "scenario": "FAQ Management",
+          "steps": [
+            "Login ke admin panel",
+            "Buka /admin/content/faq",
+            "Add new FAQ item",
+            "Drag & drop untuk reorder",
+            "Edit existing FAQ",
+            "Delete FAQ dengan confirmation",
+            "Save changes",
+            "Check frontend /",
+            "Click accordion untuk expand/collapse",
+            "Verify FAQ order correct"
+          ]
+        },
+        {
+          "scenario": "Mobile Responsive",
+          "devices": ["iPhone 12 (390px)", "iPad (768px)", "Desktop (1280px)"],
+          "checks": [
+            "Admin forms full width di mobile",
+            "Drag handle visible dan functional",
+            "Modal tidak overflow",
+            "Buttons touch-friendly (44px)",
+            "Frontend sections stack proper di mobile"
+          ]
+        }
+      ]
+    },
+    {
+      "step": 10,
+      "title": "Documentation & Cleanup",
+      "description": "Dokumentasi dan cleanup code",
+      "tasks": [
+        "Add comments di complex logic",
+        "Remove console.logs yang tidak perlu",
+        "Check all imports tersusun rapi",
+        "Verify TypeScript types consistent",
+        "Test permission guard untuk content.view, content.edit",
+        "Verify all components mobile responsive"
+      ]
+    }
+  ],
+  "technicalDetails": {
+    "roadmapDataStructure": {
+      "example": {
+        "id": "clx123abc",
+        "phase": "Phase 1",
+        "quarter": "Q1 2025",
+        "title": "Foundation",
+        "status": "completed",
+        "items": [
+          "✅ Concept & Design",
+          "✅ Smart Contract Development",
+          "✅ Website & dApp UI"
+        ],
+        "order": 0
+      },
+      "statusColors": {
+        "completed": "border-green-500 bg-green-500/10",
+        "in-progress": "border-blue-500 bg-blue-500/10",
+        "upcoming": "border-gray-500 bg-gray-500/10"
+      }
+    },
+    "faqDataStructure": {
+      "example": {
+        "id": "clx456def",
+        "question": "What is Monquest?",
+        "answer": "Monquest is a pixel-art tower defense game built on Monad blockchain...",
+        "order": 0
+      }
+    },
+    "apiEndpoints": {
+      "admin": {
+        "roadmap": {
+          "get": "/api/content/roadmap",
+          "put": "/api/content/roadmap"
+        },
+        "faq": {
+          "get": "/api/content/faq",
+          "put": "/api/content/faq"
+        }
+      },
+      "public": {
+        "roadmap": "/api/public/content?type=ROADMAP",
+        "faq": "/api/public/content?type=FAQ"
+      }
+    }
+  },
+  "fileStructure": {
+    "newFiles": [
+      "src/app/api/content/roadmap/route.ts",
+      "src/app/api/content/faq/route.ts",
+      "src/app/admin/content/roadmap/page.tsx",
+      "src/app/admin/content/faq/page.tsx"
+    ],
+    "modifiedFiles": [
+      "src/components/sections/RoadmapSection.tsx (add API fetch)",
+      "src/components/sections/FAQSection.tsx (add API fetch)",
+      "src/app/api/public/content/route.ts (add ROADMAP & FAQ cases)",
+      "prisma/seed.ts (optional - add seed data)"
+    ],
+    "reusedComponents": [
+      "src/components/ui/DraggableCard.tsx",
+      "src/components/ui/Modal.tsx",
+      "src/components/ui/ConfirmModal.tsx",
+      "src/components/ui/IconPicker.tsx (roadmap only)",
+      "src/components/PermissionGuard.tsx"
+    ]
+  },
+  "permissions": {
+    "required": [
+      "content.view - untuk akses halaman",
+      "content.edit - untuk save changes"
+    ],
+    "guard": "Gunakan <PermissionGuard permissions='content.view'> di page.tsx"
+  },
+  "mobileResponsive": {
+    "considerations": [
+      "Forms full width di mobile (w-full sm:max-w-md)",
+      "Modal padding responsive (p-4 sm:p-6)",
+      "Drag handle visible di mobile",
+      "Touch targets 44x44px minimum",
+      "Roadmap cards stack vertikal di mobile",
+      "FAQ accordion full width",
+      "Status badges dengan proper text size"
+    ]
+  },
+  "notes": [
+    "Follow EXACT same pattern dari hero, features, how-it-works untuk consistency",
+    "Roadmap: Ada status selector & checklist items (array of strings)",
+    "FAQ: Simple question/answer, NO icons needed",
+    "Roadmap frontend: Keep status color coding",
+    "FAQ frontend: Keep accordion behavior",
+    "Gunakan nanoid() untuk generate IDs",
+    "Implement drag & drop untuk both roadmap dan FAQ",
+    "Save to database real-time atau dengan Save button (prefer real-time untuk drag, manual save untuk add/edit/delete)",
+    "Mobile responsive adalah PRIORITY - test di 320px width minimum"
+  ]
+}

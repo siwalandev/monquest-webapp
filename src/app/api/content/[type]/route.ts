@@ -89,10 +89,12 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: content,
     });
+    response.headers.set('X-Notification-Created', 'true');
+    return response;
   } catch (error) {
     console.error('Update content error:', error);
     return NextResponse.json(

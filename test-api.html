@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test - Roadmap & FAQ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        h1 { color: #4ade80; }
+        h2 { color: #60a5fa; }
+        pre {
+            background: #000;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        button {
+            background: #4ade80;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #22c55e;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .success { background: #22c55e; color: #000; }
+        .error { background: #ef4444; color: #fff; }
+    </style>
+</head>
+<body>
+    <h1>🧪 API Test - Roadmap & FAQ</h1>
+    
+    <div class="section">
+        <h2>Test Controls</h2>
+        <button onclick="testRoadmap()">Test Roadmap API</button>
+        <button onclick="testFAQ()">Test FAQ API</button>
+        <button onclick="testAll()">Test All Content</button>
+    </div>
+
+    <div class="section">
+        <h2>Roadmap API Response</h2>
+        <div id="roadmap-status"></div>
+        <pre id="roadmap-result">Click "Test Roadmap API" to fetch data...</pre>
+    </div>
+
+    <div class="section">
+        <h2>FAQ API Response</h2>
+        <div id="faq-status"></div>
+        <pre id="faq-result">Click "Test FAQ API" to fetch data...</pre>
+    </div>
+
+    <div class="section">
+        <h2>All Content API Response</h2>
+        <div id="all-status"></div>
+        <pre id="all-result">Click "Test All Content" to fetch data...</pre>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+
+        async function testRoadmap() {
+            try {
+                const response = await fetch(`${API_BASE}/api/public/content?type=ROADMAP`);
+                const data = await response.json();
+                
+                document.getElementById('roadmap-status').innerHTML = 
+                    `<span class="status ${data.success ? 'success' : 'error'}">${data.success ? '✅ SUCCESS' : '❌ FAILED'}</span>`;
+                document.getElementById('roadmap-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('roadmap-status').innerHTML = 
+                    `<span class="status error">❌ ERROR</span>`;
+                document.getElementById('roadmap-result').textContent = error.message;
+            }
+        }
+
+        async function testFAQ() {
+            try {
+                const response = await fetch(`${API_BASE}/api/public/content?type=FAQ`);
+                const data = await response.json();
+                
+                document.getElementById('faq-status').innerHTML = 
+                    `<span class="status ${data.success ? 'success' : 'error'}">${data.success ? '✅ SUCCESS' : '❌ FAILED'}</span>`;
+                document.getElementById('faq-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('faq-status').innerHTML = 
+                    `<span class="status error">❌ ERROR</span>`;
+                document.getElementById('faq-result').textContent = error.message;
+            }
+        }
+
+        async function testAll() {
+            try {
+                const response = await fetch(`${API_BASE}/api/public/content`);
+                const data = await response.json();
+                
+                document.getElementById('all-status').innerHTML = 
+                    `<span class="status ${data.success ? 'success' : 'error'}">${data.success ? '✅ SUCCESS' : '❌ FAILED'}</span>`;
+                document.getElementById('all-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('all-status').innerHTML = 
+                    `<span class="status error">❌ ERROR</span>`;
+                document.getElementById('all-result').textContent = error.message;
+            }
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            console.log('🧪 API Test Page Loaded');
+            console.log('📍 API Base URL:', API_BASE);
+        });
+    </script>
+</body>
+</html>

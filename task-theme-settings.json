@@ -1,0 +1,431 @@
+{
+  "title": "Dynamic Theme Settings - Admin Panel",
+  "description": "Enable dynamic theme color customization via Admin Settings panel. Replace hardcoded Tailwind colors with CSS variables that can be updated in real-time from database.",
+  "objective": "Allow admins to customize brand colors (primary, secondary, accent, dark, light) through Settings panel, stored in database, applied globally via CSS variables.",
+  
+  "current_state_analysis": {
+    "tailwind_config": {
+      "location": "tailwind.config.ts",
+      "current_colors": {
+        "pixel-primary": "#4ADE80",
+        "pixel-secondary": "#60A5FA",
+        "pixel-accent": "#FB923C",
+        "pixel-dark": "#1E293B",
+        "pixel-darker": "#0F172A",
+        "pixel-light": "#F1F5F9"
+      },
+      "issue": "Colors are HARDCODED in config - cannot be changed without rebuild"
+    },
+    "globals_css": {
+      "location": "src/app/globals.css",
+      "has_css_variables": true,
+      "current_vars": [
+        "--pixel-primary: #4ADE80",
+        "--pixel-secondary: #60A5FA",
+        "--pixel-accent: #FB923C",
+        "--pixel-dark: #1E293B",
+        "--pixel-darker: #0F172A"
+      ],
+      "issue": "CSS variables exist but NOT used throughout components"
+    },
+    "component_usage": {
+      "total_matches": "50+ hardcoded color classes found",
+      "patterns": [
+        "bg-pixel-primary, text-pixel-primary, border-pixel-primary",
+        "bg-green-500, text-green-500, border-green-500",
+        "bg-blue-500, text-blue-500, border-blue-500",
+        "bg-red-500, text-red-500, border-red-500",
+        "bg-gray-500, text-gray-500, border-gray-500"
+      ],
+      "affected_files": [
+        "RoadmapSection.tsx (green, blue, gray status colors)",
+        "PixelButton.tsx (pixel-primary, pixel-secondary, pixel-accent)",
+        "PixelCard.tsx (pixel-dark, pixel-primary borders)",
+        "PixelInput.tsx, PixelTextarea.tsx (pixel-darker bg, pixel-primary borders)",
+        "StatusBadge.tsx (green-500, red-500)",
+        "RoleBadge.tsx (green-500, blue-500)",
+        "ServerDataTable.tsx (green-500 accents)",
+        "DraggableCard.tsx (blue-400, red-400 buttons)",
+        "ConfirmModal.tsx (red-500 delete)",
+        "Admin content pages (green-500 buttons, gray-800 inputs)",
+        "HeroSection, FeaturesSection, FAQSection, etc."
+      ],
+      "issue": "Mix of Tailwind classes and inline styles - need unified approach"
+    },
+    "database": {
+      "has_settings_table": false,
+      "needs": "Settings model in Prisma schema to store theme config"
+    }
+  },
+
+  "solution_architecture": {
+    "approach": "CSS Variables + Inline Styles (Dynamic Runtime Updates)",
+    "reason": "Tailwind's JIT compiler can't generate dynamic colors at runtime. Must use CSS variables with inline styles or CSS-in-JS.",
+    "flow": [
+      "1. Store theme colors in Database (Settings table)",
+      "2. Load theme colors server-side (middleware or layout)",
+      "3. Inject CSS variables into <style> tag in <head>",
+      "4. Replace Tailwind color classes with inline style={{ color: 'var(--pixel-primary)' }}",
+      "5. Admin Settings page to edit colors with color picker",
+      "6. Real-time preview + save to database",
+      "7. Refresh CSS variables globally on save"
+    ],
+    "tech_stack": {
+      "color_picker": "react-colorful (lightweight, no deps)",
+      "storage": "Prisma Settings model",
+      "injection": "Next.js layout with <style dangerouslySetInnerHTML>",
+      "preview": "Live update CSS variables via useState"
+    }
+  },
+
+  "implementation_steps": [
+    {
+      "step": 1,
+      "title": "Update Prisma Schema - Add Settings & ThemePreset Models",
+      "files": ["prisma/schema.prisma"],
+      "tasks": [
+        "Add Settings model with fields: id, key (unique), value (JSON), category, description, updatedAt",
+        "Add ThemePreset model: id, name, slug (unique), colors (JSON), isDefault, isSystem, createdAt, updatedAt",
+        "Create migration: npx prisma migrate dev --name add_settings_and_theme_presets",
+        "Update seed.ts to add default theme settings + built-in presets"
+      ],
+      "settings_structure": {
+        "key": "active_theme_preset",
+        "value": "default",
+        "category": "appearance",
+        "description": "Currently active theme preset slug"
+      },
+      "theme_preset_structure": {
+        "name": "Default",
+        "slug": "default",
+        "colors": {
+          "primary": "#4ADE80",
+          "secondary": "#60A5FA",
+          "accent": "#FB923C",
+          "dark": "#1E293B",
+          "darker": "#0F172A",
+          "light": "#F1F5F9"
+        },
+        "isDefault": true,
+        "isSystem": true
+      },
+      "built_in_presets": [
+        {
+          "name": "Default",
+          "slug": "default",
+          "colors": {
+            "primary": "#4ADE80",
+            "secondary": "#60A5FA",
+            "accent": "#FB923C",
+            "dark": "#1E293B",
+            "darker": "#0F172A",
+            "light": "#F1F5F9"
+          }
+        },
+        {
+          "name": "Cyberpunk",
+          "slug": "cyberpunk",
+          "colors": {
+            "primary": "#FF0080",
+            "secondary": "#00FFFF",
+            "accent": "#FFFF00",
+            "dark": "#0D001A",
+            "darker": "#050008",
+            "light": "#E0E0FF"
+          }
+        },
+        {
+          "name": "Ocean",
+          "slug": "ocean",
+          "colors": {
+            "primary": "#06B6D4",
+            "secondary": "#3B82F6",
+            "accent": "#10B981",
+            "dark": "#0C4A6E",
+            "darker": "#082F49",
+            "light": "#E0F2FE"
+          }
+        },
+        {
+          "name": "Sunset",
+          "slug": "sunset",
+          "colors": {
+            "primary": "#F59E0B",
+            "secondary": "#EF4444",
+            "accent": "#EC4899",
+            "dark": "#451A03",
+            "darker": "#1C0A00",
+            "light": "#FEF3C7"
+          }
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "title": "Create Theme Context Provider",
+      "files": ["src/contexts/ThemeContext.tsx", "src/app/layout.tsx"],
+      "tasks": [
+        "Create ThemeContext to manage theme colors globally",
+        "Fetch theme settings from database on mount",
+        "Provide theme colors via Context API",
+        "Wrap app with ThemeProvider in layout.tsx",
+        "Inject CSS variables dynamically into <style> tag"
+      ],
+      "example_code": {
+        "context": "const ThemeContext = createContext({ colors: defaultColors, updateColors: () => {} })",
+        "injection": "<style dangerouslySetInnerHTML={{ __html: `:root { --pixel-primary: ${colors.primary}; }` }}/>"
+      }
+    },
+    {
+      "step": 3,
+      "title": "Create Settings & Theme Preset API Routes",
+      "files": [
+        "src/app/api/settings/route.ts (GET all, POST create)",
+        "src/app/api/settings/[key]/route.ts (GET, PUT, DELETE)",
+        "src/app/api/theme-presets/route.ts (GET all, POST create)",
+        "src/app/api/theme-presets/[slug]/route.ts (GET, PUT, DELETE)",
+        "src/app/api/theme-presets/[slug]/apply/route.ts (POST - apply preset)"
+      ],
+      "tasks": [
+        "GET /api/settings - Fetch all settings",
+        "GET /api/settings/active_theme_preset - Get active preset slug",
+        "PUT /api/settings/active_theme_preset - Change active preset",
+        "GET /api/theme-presets - List all presets (system + custom)",
+        "GET /api/theme-presets/:slug - Get specific preset",
+        "POST /api/theme-presets - Create custom preset (name + colors)",
+        "PUT /api/theme-presets/:slug - Update custom preset (only non-system)",
+        "DELETE /api/theme-presets/:slug - Delete custom preset (only non-system)",
+        "POST /api/theme-presets/:slug/apply - Apply preset (set as active)",
+        "Validate color hex format (#RRGGBB)",
+        "Validate unique slug (auto-generate from name)",
+        "Permission guard: settings.view, settings.edit",
+        "Return updated settings + trigger revalidation"
+      ],
+      "validation": {
+        "hex_regex": "^#[0-9A-Fa-f]{6}$",
+        "required_keys": ["primary", "secondary", "accent", "dark", "darker", "light"],
+        "slug_format": "lowercase, alphanumeric, hyphens only",
+        "name_max_length": 50,
+        "prevent_delete_system": "isSystem = true cannot be deleted"
+      }
+    },
+    {
+      "step": 4,
+      "title": "Build Theme Settings Admin Page with Preset Management",
+      "files": ["src/app/admin/settings/theme/page.tsx"],
+      "tasks": [
+        "Install react-colorful: npm install react-colorful",
+        "Create 2-column layout: Presets (left) + Color Editor (right)",
+        "PRESET MANAGEMENT SECTION:",
+        "- List all presets (system + custom) with preview colors",
+        "- Active preset highlighted with checkmark",
+        "- 'Apply' button untuk switch preset",
+        "- 'Edit' button for custom presets (load colors to editor)",
+        "- 'Delete' button for custom presets (with confirm modal)",
+        "- 'Save as New Preset' button (create from current colors)",
+        "- System presets show 'System' badge, cannot be deleted",
+        "COLOR EDITOR SECTION:",
+        "- Color picker UI for each theme color (6 colors)",
+        "- Live preview: Update CSS variables on color change",
+        "- Hex input fields (manual entry with validation)",
+        "- Color preview boxes (large, 60x60px minimum)",
+        "- 'Save Changes' button (update active preset if custom)",
+        "- 'Reset' button (revert to last saved state)",
+        "- 'Save as New Preset' modal: name input + slug auto-generation",
+        "Show success/error toast",
+        "Permission guard: settings.view, settings.edit",
+        "Mobile responsive: Stack preset list above color editor"
+      ],
+      "ui_layout": {
+        "desktop": "2 columns - Presets sidebar (30%) + Color editor (70%)",
+        "mobile": "Stack vertically - Presets dropdown + Color editor full width"
+      },
+      "save_flow": {
+        "edit_system_preset": "Show warning: 'Cannot edit system presets. Save as new preset?'",
+        "edit_custom_preset": "Direct save updates the preset",
+        "create_new": "Modal: name input → auto-generate slug → validate unique → save"
+      }
+    },
+    {
+      "step": 5,
+      "title": "Update Components - Replace Hardcoded Colors",
+      "priority": "HIGH",
+      "files": [
+        "src/components/ui/PixelButton.tsx",
+        "src/components/ui/PixelCard.tsx",
+        "src/components/ui/PixelInput.tsx",
+        "src/components/ui/PixelTextarea.tsx",
+        "src/components/sections/RoadmapSection.tsx",
+        "src/components/sections/HeroSection.tsx",
+        "src/components/sections/FeaturesSection.tsx",
+        "src/components/sections/FAQSection.tsx",
+        "src/components/ui/StatusBadge.tsx",
+        "src/components/ui/RoleBadge.tsx",
+        "src/components/ui/ServerDataTable.tsx",
+        "src/components/ui/DraggableCard.tsx",
+        "src/components/ui/ConfirmModal.tsx",
+        "Admin content pages (hero, features, roadmap, faq)"
+      ],
+      "approach": {
+        "method_1_inline": "style={{ backgroundColor: 'var(--pixel-primary)', color: 'white' }}",
+        "method_2_utility": "className='bg-[--pixel-primary]' (Tailwind 3.3+)"
+      },
+      "tasks": [
+        "Replace bg-pixel-primary → style={{ backgroundColor: 'var(--pixel-primary)' }}",
+        "Replace text-pixel-primary → style={{ color: 'var(--pixel-primary)' }}",
+        "Replace border-pixel-primary → style={{ borderColor: 'var(--pixel-primary)' }}",
+        "Replace hardcoded green-500, blue-500, red-500 status colors",
+        "Create utility hook: useThemeColor('primary') → returns CSS variable",
+        "Test all components visually after changes"
+      ],
+      "semantic_color_mapping": {
+        "success": "var(--pixel-primary) OR dedicated --color-success",
+        "error": "--color-error (red)",
+        "warning": "--color-warning (orange)",
+        "info": "var(--pixel-secondary)",
+        "note": "Keep semantic colors separate or map to theme colors"
+      }
+    },
+    {
+      "step": 6,
+      "title": "Create Theme Color Utility Hook",
+      "files": ["src/hooks/useThemeColor.ts"],
+      "tasks": [
+        "Create hook to access theme colors from Context",
+        "Return CSS variable strings: var(--pixel-primary)",
+        "Optional: Return raw hex values for calculations",
+        "Usage: const primaryColor = useThemeColor('primary')"
+      ],
+      "example": "export const useThemeColor = (key) => { const { colors } = useTheme(); return `var(--pixel-${key})`; }"
+    },
+    {
+      "step": 7,
+      "title": "Update Tailwind Config (Optional Enhancement)",
+      "files": ["tailwind.config.ts"],
+      "tasks": [
+        "Keep existing pixel colors as fallbacks",
+        "Add CSS variable references for dynamic colors",
+        "Enable arbitrary values: bg-[--pixel-primary]",
+        "Document that Tailwind classes won't change dynamically"
+      ],
+      "note": "Tailwind JIT can't generate classes at runtime. This step is for editor autocomplete only."
+    },
+    {
+      "step": 8,
+      "title": "Add Admin Sidebar Link",
+      "files": ["src/components/admin/AdminSidebar.tsx"],
+      "tasks": [
+        "Add 'Theme Settings' link under Settings section",
+        "Icon: IoPalette or IoColorPalette",
+        "Route: /admin/settings/theme",
+        "Permission: settings.view",
+        "Order: After API Keys"
+      ]
+    },
+    {
+      "step": 9,
+      "title": "Seed Default Theme Settings",
+      "files": ["prisma/seed.ts"],
+      "tasks": [
+        "Add default theme_colors setting to seed",
+        "Use current hardcoded colors as defaults",
+        "Run seed: npm run prisma:seed"
+      ]
+    },
+    {
+      "step": 10,
+      "title": "Testing & Edge Cases",
+      "tasks": [
+        "Test color changes reflect immediately after save",
+        "Test invalid hex codes are rejected",
+        "Test permission guards work (no settings.edit = read-only)",
+        "Test mobile responsive color pickers",
+        "Test light/dark text contrast (WCAG compliance)",
+        "Test CSS variable fallbacks if DB fails",
+        "Performance: Measure CSS injection overhead",
+        "Browser compatibility: CSS variables (IE11? lol no)"
+      ],
+      "edge_cases": [
+        "What if database returns null? → Use hardcoded defaults",
+        "What if user enters invalid hex? → Validate on frontend + backend",
+        "What if colors are too similar? → Show contrast warning",
+        "What if user wants to reset? → Reset button + confirm modal"
+      ]
+    }
+  ],
+
+  "challenges_and_solutions": {
+    "challenge_1": {
+      "issue": "Tailwind can't generate dynamic classes at runtime",
+      "solution": "Use CSS variables with inline styles or arbitrary values bg-[--pixel-primary]",
+      "trade_off": "Less Tailwind autocomplete, more verbose code"
+    },
+    "challenge_2": {
+      "issue": "50+ files have hardcoded colors",
+      "solution": "Prioritize UI components first (PixelButton, PixelCard, etc), then sections, then admin pages",
+      "automation": "Could use AST transformer to automate replacements (overkill?)"
+    },
+    "challenge_3": {
+      "issue": "How to preview changes before save?",
+      "solution": "Update CSS variables in-memory via useState, only persist to DB on save"
+    },
+    "challenge_4": {
+      "issue": "Status colors (green=success, red=error) are semantic",
+      "solution": "Keep semantic colors OR create mapping in theme settings (e.g., 'success': 'primary')"
+    },
+    "challenge_5": {
+      "issue": "Performance of CSS variable injection",
+      "solution": "Inject once in layout, cache in Context, only update on settings change"
+    }
+  },
+
+  "bonus_features": {
+    "export_import": "Export preset as JSON file, import from JSON",
+    "duplicate_preset": "Quick duplicate button to create variant",
+    "preset_preview": "Live preview card showing all colors in action",
+    "color_history": "Undo/redo color changes (up to 10 steps)",
+    "contrast_checker": "WCAG AA/AAA contrast validation warnings",
+    "gradient_support": "Allow gradient backgrounds (primary-to-secondary)",
+    "font_customization": "Change pixel font family (Press Start 2P, VT323, etc)",
+    "spacing_scale": "Customize spacing scale (tight, normal, relaxed)",
+    "border_radius": "Adjust corner roundness (sharp, rounded, pill)",
+    "preset_sharing": "Generate shareable preset code (base64 encoded)"
+  },
+
+  "testing_checklist": [
+    "✅ Default theme loads from database",
+    "✅ Built-in presets (Default, Cyberpunk, Ocean, Sunset) seeded",
+    "✅ Active preset highlighted in list",
+    "✅ Apply preset changes theme instantly",
+    "✅ Color picker updates preview in real-time",
+    "✅ Save as new preset creates custom entry",
+    "✅ Edit custom preset updates colors",
+    "✅ Delete custom preset removes from database",
+    "✅ Cannot delete system presets (button disabled/hidden)",
+    "✅ Cannot edit system preset directly (shows warning)",
+    "✅ Preset slug auto-generated from name (lowercase, hyphenated)",
+    "✅ Duplicate preset names prevented",
+    "✅ Page refresh shows active preset colors",
+    "✅ All components reflect new colors",
+    "✅ Invalid hex codes are rejected",
+    "✅ Reset button reverts to last saved state",
+    "✅ Mobile responsive: preset dropdown + color editor",
+    "✅ Permission guards work (settings.view, settings.edit)",
+    "✅ Toast notifications show success/error",
+    "✅ CSS variables fallback to defaults on error",
+    "✅ No console errors or warnings",
+    "✅ Cross-browser compatibility (Chrome, Firefox, Safari)"
+  ],
+
+  "estimated_time": "4-6 hours",
+  "complexity": "Medium-High",
+  "priority": "High - Brand customization is key feature",
+  
+  "notes": [
+    "This is a MAJOR refactor - touches 20+ files",
+    "Test thoroughly after each step",
+    "Consider creating a feature branch",
+    "Document color variable usage in README",
+    "CSS variables have 95%+ browser support (IE11 not supported)"
+  ]
+}
