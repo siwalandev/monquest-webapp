@@ -11,6 +11,9 @@ import {
   IoShieldCheckmark,
   IoPencil,
   IoSave,
+  IoSearch,
+  IoChevronBack,
+  IoChevronForward,
 } from "react-icons/io5";
 import toast from "react-hot-toast";
 import PermissionGuard from "@/components/PermissionGuard";
@@ -52,7 +55,11 @@ const COLOR_LABELS = {
 export default function ThemeSettingsPage() {
   const { user, refreshUser } = useAuth();
   const [presets, setPresets] = useState<ThemePreset[]>([]);
-  const [activePresetSlug, setActivePresetSlug] = useState<string>("default");
+  const [filteredPresets, setFilteredPresets] = useState<ThemePreset[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activePresetSlug, setActivePresetSlug] = useState<string | null>(null);
+  const presetsPerPage = 5;
   const [editingColors, setEditingColors] = useState<ThemeColors>({
     primary: "#4ADE80",
     secondary: "#60A5FA",
@@ -78,6 +85,26 @@ export default function ThemeSettingsPage() {
     fetchPresets();
     fetchActivePreset();
   }, []);
+
+  // Filter and paginate presets
+  useEffect(() => {
+    let filtered = presets;
+    
+    if (searchQuery.trim()) {
+      filtered = presets.filter((preset) =>
+        preset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        preset.slug.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    setFilteredPresets(filtered);
+    setCurrentPage(1); // Reset to page 1 when search changes
+  }, [presets, searchQuery]);
+
+  // Get paginated presets
+  const totalPages = Math.ceil(filteredPresets.length / presetsPerPage);
+  const startIndex = (currentPage - 1) * presetsPerPage;
+  const paginatedPresets = filteredPresets.slice(startIndex, startIndex + presetsPerPage);
 
   useEffect(() => {
     // Apply colors to CSS variables for live preview
@@ -324,75 +351,121 @@ export default function ThemeSettingsPage() {
                 Theme Presets
               </h2>
               
-              <div className="space-y-2 max-h-[600px] overflow-y-auto">
-                {presets.map((preset) => (
-                  <div
-                    key={preset.id}
-                    className={`p-3 border-2 transition-all duration-200 cursor-pointer ${
-                      preset.slug === activePresetSlug
-                        ? "border-pixel-primary bg-pixel-primary/10"
-                        : "border-gray-600 bg-gray-700/50 hover:border-gray-500"
-                    }`}
-                    onClick={() => handleApplyPreset(preset)}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-white">{preset.name}</span>
-                        {preset.isSystem && (
-                          <span className="px-2 py-0.5 bg-pixel-secondary/20 text-pixel-secondary text-xs border border-pixel-secondary">
-                            System
-                          </span>
+              {/* Search Bar */}
+              <div className="mb-4">
+                <div className="relative">
+                  <IoSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search presets..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 bg-gray-900 border-2 border-gray-700 text-white placeholder-gray-500 focus:border-pixel-primary focus:outline-none transition-colors"
+                  />
+                </div>
+              </div>
+
+              {/* Preset List */}
+              <div className="space-y-2 min-h-[400px]">
+                {paginatedPresets.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    {searchQuery ? "No presets found" : "No theme presets available"}
+                  </div>
+                ) : (
+                  paginatedPresets.map((preset) => (
+                    <div
+                      key={preset.id}
+                      className={`p-3 border-2 transition-all duration-200 cursor-pointer ${
+                        preset.slug === activePresetSlug
+                          ? "border-pixel-primary bg-pixel-primary/10"
+                          : "border-gray-600 bg-gray-700/50 hover:border-gray-500"
+                      }`}
+                      onClick={() => handleApplyPreset(preset)}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-white">{preset.name}</span>
+                          {preset.isSystem && (
+                            <span className="px-2 py-0.5 bg-pixel-secondary/20 text-pixel-secondary text-xs border border-pixel-secondary">
+                              System
+                            </span>
+                          )}
+                        </div>
+                        {preset.slug === activePresetSlug && (
+                          <IoCheckmark className="text-pixel-primary text-xl" />
                         )}
                       </div>
-                      {preset.slug === activePresetSlug && (
-                        <IoCheckmark className="text-pixel-primary text-xl" />
+                      
+                      {/* Color Preview */}
+                      <div className="flex gap-1">
+                        {Object.values(preset.colors).map((color, idx) => (
+                          <div
+                            key={idx}
+                            className="flex-1 h-6 border border-gray-600"
+                            style={{ backgroundColor: color }}
+                            title={color}
+                          />
+                        ))}
+                      </div>
+                      
+                      {/* Actions */}
+                      {!preset.isSystem && (
+                        <div className="flex gap-2 mt-2">
+                          <PixelButton
+                            variant="secondary"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingColors(preset.colors);
+                              setEditingPreset(preset);
+                              toast.success(`Editing "${preset.name}"`);
+                            }}
+                            className="flex-1 flex items-center justify-center gap-1"
+                          >
+                            <IoPencil /> Edit
+                          </PixelButton>
+                          <PixelButton
+                            variant="accent"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteConfirm({ show: true, preset });
+                            }}
+                            className="flex-1 flex items-center justify-center gap-1"
+                          >
+                            <IoTrash /> Delete
+                          </PixelButton>
+                        </div>
                       )}
                     </div>
-                    
-                    {/* Color Preview */}
-                    <div className="flex gap-1">
-                      {Object.values(preset.colors).map((color, idx) => (
-                        <div
-                          key={idx}
-                          className="flex-1 h-6 border border-gray-600"
-                          style={{ backgroundColor: color }}
-                          title={color}
-                        />
-                      ))}
-                    </div>
-                    
-                    {/* Actions */}
-                    {!preset.isSystem && (
-                      <div className="flex gap-2 mt-2">
-                        <PixelButton
-                          variant="secondary"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingColors(preset.colors);
-                            setEditingPreset(preset);
-                            toast.success(`Editing "${preset.name}"`);
-                          }}
-                          className="flex-1 flex items-center justify-center gap-1"
-                        >
-                          <IoPencil /> Edit
-                        </PixelButton>
-                        <PixelButton
-                          variant="accent"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeleteConfirm({ show: true, preset });
-                          }}
-                          className="flex-1 flex items-center justify-center gap-1"
-                        >
-                          <IoTrash /> Delete
-                        </PixelButton>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-4 flex items-center justify-between border-t-2 border-gray-700 pt-4">
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <IoChevronBack /> Prev
+                  </button>
+                  
+                  <span className="text-sm text-gray-400">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Next <IoChevronForward />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
