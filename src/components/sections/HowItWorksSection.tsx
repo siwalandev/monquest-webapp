@@ -11,6 +11,7 @@ interface Step {
   icon: string;
   order: number;
   number?: string; // Backward compatibility
+  color?: "primary" | "secondary" | "accent";
 }
 
 interface HowItWorksData {
@@ -69,7 +70,7 @@ export default function HowItWorksSection({ initialData }: HowItWorksSectionProp
   }
 
   return (
-    <section id="how-it-works" className="py-20 px-4">
+    <section id="how-it-works" className="py-20 px-4 bg-pixel-darker">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16 space-y-4">
@@ -90,7 +91,7 @@ export default function HowItWorksSection({ initialData }: HowItWorksSectionProp
                 <div className="hidden lg:block absolute top-12 left-full w-full h-1 bg-pixel-primary/30 -z-10" />
               )}
 
-              <PixelCard glowColor="secondary" className="h-full">
+              <PixelCard glowColor={step.color || "secondary"} className="h-full">
                 <div className="space-y-4 text-center flex flex-col h-full">
                   {/* Step Number */}
                   <div className="inline-block bg-pixel-primary text-pixel-darker font-pixel text-2xl w-12 h-12 flex items-center justify-center border-2 border-pixel-dark mx-auto">

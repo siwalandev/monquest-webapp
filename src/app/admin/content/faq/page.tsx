@@ -7,6 +7,7 @@ import DraggableCard from "@/components/ui/DraggableCard";
 import Modal from "@/components/ui/Modal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import PermissionGuard from "@/components/PermissionGuard";
+import ColorSelector from "@/components/ui/ColorSelector";
 import { IoAdd, IoSave, IoChevronDown } from "react-icons/io5";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +19,7 @@ interface FAQItem {
   question: string;
   answer: string;
   order: number;
+  color: "primary" | "secondary" | "accent";
 }
 
 interface FAQData {
@@ -43,6 +45,7 @@ export default function FAQContentPage() {
   const [itemForm, setItemForm] = useState({
     question: "",
     answer: "",
+    color: "secondary" as "primary" | "secondary" | "accent",
   });
 
   // Delete confirmation
@@ -145,6 +148,7 @@ export default function FAQContentPage() {
     setItemForm({
       question: "",
       answer: "",
+      color: "secondary",
     });
     setItemModalOpen(true);
   };
@@ -154,11 +158,12 @@ export default function FAQContentPage() {
     setItemForm({
       question: item.question,
       answer: item.answer,
+      color: item.color || "secondary",
     });
     setItemModalOpen(true);
   };
 
-  const handleItemSubmit = () => {
+  const handleItemSubmit = async () => {
     if (!itemForm.question || !itemForm.answer) {
       toast.error("Please fill all required fields");
       return;
@@ -180,17 +185,27 @@ export default function FAQContentPage() {
 
     setFaqData({ ...faqData, items: updatedItems });
     setItemModalOpen(false);
-    toast.success(editingItem ? "FAQ updated" : "FAQ added");
+    
+    // Save to database immediately
+    const saved = await saveFAQData(updatedItems);
+    if (saved) {
+      toast.success(editingItem ? "FAQ updated" : "FAQ added");
+    }
   };
 
-  const handleDeleteItem = () => {
+  const handleDeleteItem = async () => {
     if (!deleteConfirm.item) return;
     const updated = faqData.items
       .filter((item) => item.id !== deleteConfirm.item!.id)
       .map((item, idx) => ({ ...item, order: idx }));
     setFaqData({ ...faqData, items: updated });
     setDeleteConfirm({ isOpen: false, item: null });
-    toast.success("FAQ deleted");
+    
+    // Save to database immediately
+    const saved = await saveFAQData(updated);
+    if (saved) {
+      toast.success("FAQ deleted");
+    }
   };
 
   if (isLoading) {
@@ -365,6 +380,12 @@ export default function FAQContentPage() {
                 placeholder="Monquest is a pixel-art tower defense game built on Monad blockchain..."
               />
             </div>
+
+            {/* Color Selector */}
+            <ColorSelector
+              value={itemForm.color}
+              onChange={(color) => setItemForm({ ...itemForm, color })}
+            />
           </div>
         </Modal>
 

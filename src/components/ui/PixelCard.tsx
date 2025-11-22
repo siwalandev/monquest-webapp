@@ -11,20 +11,29 @@ export default function PixelCard({
   className = "",
   glowColor = "primary",
 }: PixelCardProps) {
-  // Map glow colors to CSS variable names
-  const glowVarMap = {
-    primary: "--pixel-primary",
-    secondary: "--pixel-secondary",
-    accent: "--pixel-accent",
+  // Map glow colors to CSS variable names and border classes
+  const colorConfig = {
+    primary: {
+      cssVar: "--pixel-primary",
+      borderClass: "border-pixel-primary",
+    },
+    secondary: {
+      cssVar: "--pixel-secondary",
+      borderClass: "border-pixel-secondary",
+    },
+    accent: {
+      cssVar: "--pixel-accent",
+      borderClass: "border-pixel-accent",
+    },
   };
   
-  const glowVar = glowVarMap[glowColor];
+  const config = colorConfig[glowColor];
 
   return (
     <div
       className={`
         bg-pixel-dark
-        border-4 border-pixel-${glowColor}
+        border-4 ${config.borderClass}
         p-6
         transition-all
         duration-300
@@ -32,13 +41,13 @@ export default function PixelCard({
         ${className}
       `}
       style={{
-        boxShadow: `0 0 20px color-mix(in srgb, var(${glowVar}) 30%, transparent)`,
+        boxShadow: `0 0 20px color-mix(in srgb, var(${config.cssVar}) 30%, transparent)`,
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = `0 0 20px color-mix(in srgb, var(${glowVar}) 50%, transparent)`;
+        e.currentTarget.style.boxShadow = `0 0 20px color-mix(in srgb, var(${config.cssVar}) 50%, transparent)`;
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = `0 0 20px color-mix(in srgb, var(${glowVar}) 30%, transparent)`;
+        e.currentTarget.style.boxShadow = `0 0 20px color-mix(in srgb, var(${config.cssVar}) 30%, transparent)`;
       }}
     >
       {children}

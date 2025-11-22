@@ -7,6 +7,7 @@ import DraggableCard from "@/components/ui/DraggableCard";
 import Modal from "@/components/ui/Modal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import PermissionGuard from "@/components/PermissionGuard";
+import ColorSelector from "@/components/ui/ColorSelector";
 import { IoAdd, IoSave } from "react-icons/io5";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,6 +22,7 @@ interface RoadmapItem {
   status: "completed" | "in-progress" | "upcoming";
   items: string[];
   order: number;
+  color: "primary" | "secondary" | "accent";
 }
 
 interface RoadmapData {
@@ -48,6 +50,7 @@ export default function RoadmapContentPage() {
     title: "",
     status: "upcoming" as "completed" | "in-progress" | "upcoming",
     items: [""],
+    color: "primary" as "primary" | "secondary" | "accent",
   });
 
   // Delete confirmation
@@ -153,6 +156,7 @@ export default function RoadmapContentPage() {
       title: "",
       status: "upcoming",
       items: [""],
+      color: "primary",
     });
     setItemModalOpen(true);
   };
@@ -165,11 +169,12 @@ export default function RoadmapContentPage() {
       title: item.title,
       status: item.status,
       items: item.items.length > 0 ? item.items : [""],
+      color: item.color || "primary",
     });
     setItemModalOpen(true);
   };
 
-  const handleItemSubmit = () => {
+  const handleItemSubmit = async () => {
     if (!itemForm.phase || !itemForm.quarter || !itemForm.title) {
       toast.error("Please fill all required fields");
       return;
@@ -200,17 +205,27 @@ export default function RoadmapContentPage() {
 
     setRoadmapData({ ...roadmapData, items: updatedItems });
     setItemModalOpen(false);
-    toast.success(editingItem ? "Phase updated" : "Phase added");
+    
+    // Save to database immediately
+    const saved = await saveRoadmapData(updatedItems);
+    if (saved) {
+      toast.success(editingItem ? "Phase updated" : "Phase added");
+    }
   };
 
-  const handleDeleteItem = () => {
+  const handleDeleteItem = async () => {
     if (!deleteConfirm.item) return;
     const updated = roadmapData.items
       .filter((item) => item.id !== deleteConfirm.item!.id)
       .map((item, idx) => ({ ...item, order: idx }));
     setRoadmapData({ ...roadmapData, items: updated });
     setDeleteConfirm({ isOpen: false, item: null });
-    toast.success("Phase deleted");
+    
+    // Save to database immediately
+    const saved = await saveRoadmapData(updated);
+    if (saved) {
+      toast.success("Phase deleted");
+    }
   };
 
   const addChecklistItem = () => {
@@ -479,6 +494,12 @@ export default function RoadmapContentPage() {
                 ))}
               </div>
             </div>
+
+            {/* Color Selector */}
+            <ColorSelector
+              value={itemForm.color}
+              onChange={(color) => setItemForm({ ...itemForm, color })}
+            />
           </div>
         </Modal>
 

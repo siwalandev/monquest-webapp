@@ -4,13 +4,37 @@ import { useState, useEffect } from "react";
 import PixelCard from "@/components/ui/PixelCard";
 import { IoCheckmarkCircle, IoTimeOutline, IoReload } from "react-icons/io5";
 
-export default function RoadmapSection() {
-  const [roadmapData, setRoadmapData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+interface RoadmapItem {
+  id: string;
+  phase: string;
+  quarter: string;
+  title: string;
+  status: "completed" | "in-progress" | "upcoming";
+  items: string[];
+  order: number;
+  color?: "primary" | "secondary" | "accent";
+}
+
+interface RoadmapData {
+  title: string;
+  subtitle: string;
+  items: RoadmapItem[];
+}
+
+interface RoadmapSectionProps {
+  initialData?: RoadmapData | null;
+}
+
+export default function RoadmapSection({ initialData }: RoadmapSectionProps) {
+  const [roadmapData, setRoadmapData] = useState<RoadmapData | null>(initialData || null);
+  const [isLoading, setIsLoading] = useState(!initialData);
 
   useEffect(() => {
-    fetchRoadmapData();
-  }, []);
+    // Only fetch if no initial data provided (client-side fallback)
+    if (!initialData) {
+      fetchRoadmapData();
+    }
+  }, [initialData]);
 
   const fetchRoadmapData = async () => {
     try {
@@ -54,7 +78,7 @@ export default function RoadmapSection() {
   };
 
   return (
-    <section id="roadmap" className="py-20 px-4 bg-pixel-dark/30">
+    <section id="roadmap" className="py-20 px-4 bg-pixel-dark">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16 space-y-4">
@@ -68,20 +92,21 @@ export default function RoadmapSection() {
 
         {/* Roadmap Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {roadmapItems.map((item, index) => {
+          {roadmapItems.map((item: RoadmapItem, index: number) => {
             const config = statusConfig[item.status as keyof typeof statusConfig];
             const StatusIcon = config?.icon || IoTimeOutline;
 
             return (
               <PixelCard
                 key={index}
+                glowColor={item.color || "primary"}
                 className={`${config?.color} transition-all duration-300 hover:scale-105`}
               >
                 <div className="space-y-4">
                   {/* Status Badge */}
                   <div className={`flex items-center gap-2 ${config?.textColor}`}>
                     <StatusIcon
-                      className={`w-5 h-5 ${config?.animated ? 'animate-spin' : ''}`}
+                      className={`w-5 h-5 ${'animated' in config && config.animated ? 'animate-spin' : ''}`}
                     />
                     <span className="text-xs font-bold uppercase tracking-wider">
                       {config?.label}

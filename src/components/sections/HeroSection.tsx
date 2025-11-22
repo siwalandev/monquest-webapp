@@ -84,11 +84,17 @@ export default function HeroSection({ initialData }: HeroSectionProps) {
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 pt-20 overflow-hidden">
       {/* Animated background elements */}
-      <div className="absolute inset-0 opacity-10">
+      <div className="absolute inset-0 opacity-10 text-pixel-primary">
         <div className="absolute top-20 left-10 text-6xl animate-pixel-float"><IoHome /></div>
         <div className="absolute top-40 right-20 text-6xl animate-pixel-float animation-delay-1000"><IoShield /></div>
         <div className="absolute bottom-40 left-20 text-6xl animate-pixel-float animation-delay-2000"><IoShield /></div>
         <div className="absolute bottom-20 right-10 text-6xl animate-pixel-float animation-delay-1500"><IoSkull /></div>
+        <div className="absolute top-1/4 left-1/4 text-5xl animate-pixel-float animation-delay-500"><IoGameController /></div>
+        <div className="absolute top-1/3 right-1/4 text-5xl animate-pixel-float animation-delay-1200"><IoBook /></div>
+        <div className="absolute bottom-1/4 left-1/3 text-4xl animate-pixel-float animation-delay-800"><IoHome /></div>
+        <div className="absolute bottom-1/3 right-1/3 text-4xl animate-pixel-float animation-delay-1800"><IoSkull /></div>
+        <div className="absolute top-1/2 left-[15%] text-3xl animate-pixel-float animation-delay-600"><IoShield /></div>
+        <div className="absolute top-[60%] right-[10%] text-3xl animate-pixel-float animation-delay-1400"><IoGameController /></div>
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8">

@@ -7,6 +7,7 @@ import DraggableCard from "@/components/ui/DraggableCard";
 import Modal from "@/components/ui/Modal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import IconPicker from "@/components/ui/IconPicker";
+import ColorSelector from "@/components/ui/ColorSelector";
 import { IoAdd, IoSave } from "react-icons/io5";
 import * as Icons from "react-icons/io5";
 import toast from "react-hot-toast";
@@ -20,6 +21,7 @@ interface Step {
   title: string;
   description: string;
   order: number;
+  color: "primary" | "secondary" | "accent";
 }
 
 interface HowItWorksData {
@@ -45,6 +47,7 @@ export default function HowItWorksContentPage() {
     icon: "IoLink",
     title: "",
     description: "",
+    color: "secondary" as "primary" | "secondary" | "accent",
   });
 
   // Icon Picker
@@ -147,17 +150,17 @@ export default function HowItWorksContentPage() {
   // CRUD Operations
   const openAddStepModal = () => {
     setEditingStep(null);
-    setStepForm({ icon: "IoLink", title: "", description: "" });
+    setStepForm({ icon: "IoLink", title: "", description: "", color: "secondary" });
     setStepModalOpen(true);
   };
 
   const openEditStepModal = (step: Step) => {
     setEditingStep(step);
-    setStepForm({ icon: step.icon, title: step.title, description: step.description });
+    setStepForm({ icon: step.icon, title: step.title, description: step.description, color: step.color || "secondary" });
     setStepModalOpen(true);
   };
 
-  const handleStepSubmit = () => {
+  const handleStepSubmit = async () => {
     if (!stepForm.title || !stepForm.description) {
       toast.error("Please fill all required fields");
       return;
@@ -179,17 +182,27 @@ export default function HowItWorksContentPage() {
 
     setHowItWorksData({ ...howItWorksData, steps: updatedSteps });
     setStepModalOpen(false);
-    toast.success(editingStep ? "Step updated" : "Step added");
+    
+    // Save to database immediately
+    const saved = await saveHowItWorksData(updatedSteps);
+    if (saved) {
+      toast.success(editingStep ? "Step updated" : "Step added");
+    }
   };
 
-  const handleDeleteStep = () => {
+  const handleDeleteStep = async () => {
     if (!deleteConfirm.step) return;
     const updated = howItWorksData.steps
       .filter((s) => s.id !== deleteConfirm.step!.id)
       .map((s, idx) => ({ ...s, order: idx }));
     setHowItWorksData({ ...howItWorksData, steps: updated });
     setDeleteConfirm({ isOpen: false, step: null });
-    toast.success("Step deleted");
+    
+    // Save to database immediately
+    const saved = await saveHowItWorksData(updated);
+    if (saved) {
+      toast.success("Step deleted");
+    }
   };
 
   const getIcon = (iconName: string) => {
@@ -377,6 +390,12 @@ export default function HowItWorksContentPage() {
               placeholder="Connect your Web3 wallet to access the game..."
             />
           </div>
+
+          {/* Color Selector */}
+          <ColorSelector
+            value={stepForm.color}
+            onChange={(color) => setStepForm({ ...stepForm, color })}
+          />
         </div>
       </Modal>
 

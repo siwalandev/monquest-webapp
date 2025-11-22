@@ -56,7 +56,7 @@ export default function FeaturesSection({ initialData }: FeaturesSectionProps) {
 
   if (isLoading) {
     return (
-      <section id="features" className="py-20 px-4 bg-pixel-dark/30">
+      <section id="features" className="py-20 px-4 bg-pixel-dark">
         <div className="max-w-7xl mx-auto text-center">
           <div className="text-pixel-light animate-pulse">Loading features...</div>
         </div>
@@ -69,7 +69,7 @@ export default function FeaturesSection({ initialData }: FeaturesSectionProps) {
   }
 
   return (
-    <section id="features" className="py-20 px-4 bg-pixel-dark/30">
+    <section id="features" className="py-20 px-4 bg-pixel-dark">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16 space-y-4">

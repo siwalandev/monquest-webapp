@@ -46,3 +46,40 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--pixel-secondary);
 }
+
+/* Animation delays for staggered effects */
+.animation-delay-500 {
+  animation-delay: 0.5s;
+}
+
+.animation-delay-600 {
+  animation-delay: 0.6s;
+}
+
+.animation-delay-800 {
+  animation-delay: 0.8s;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1s;
+}
+
+.animation-delay-1200 {
+  animation-delay: 1.2s;
+}
+
+.animation-delay-1400 {
+  animation-delay: 1.4s;
+}
+
+.animation-delay-1500 {
+  animation-delay: 1.5s;
+}
+
+.animation-delay-1800 {
+  animation-delay: 1.8s;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}

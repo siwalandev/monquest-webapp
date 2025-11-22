@@ -3,14 +3,33 @@
 import { useState, useEffect } from "react";
 import PixelCard from "@/components/ui/PixelCard";
 
-export default function FAQSection() {
+interface FAQItem {
+  question: string;
+  answer: string;
+  color?: "primary" | "secondary" | "accent";
+}
+
+interface FAQData {
+  title: string;
+  subtitle: string;
+  items: FAQItem[];
+}
+
+interface FAQSectionProps {
+  initialData?: FAQData | null;
+}
+
+export default function FAQSection({ initialData }: FAQSectionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const [faqData, setFaqData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [faqData, setFaqData] = useState<FAQData | null>(initialData || null);
+  const [isLoading, setIsLoading] = useState(!initialData);
 
   useEffect(() => {
-    fetchFAQData();
-  }, []);
+    // Only fetch if no initial data provided (client-side fallback)
+    if (!initialData) {
+      fetchFAQData();
+    }
+  }, [initialData]);
 
   const fetchFAQData = async () => {
     try {
@@ -32,7 +51,7 @@ export default function FAQSection() {
   const subtitle = faqData?.subtitle || "Got questions? We've got answers!";
 
   return (
-    <section id="faq" className="py-20 px-4">
+    <section id="faq" className="py-20 px-4 bg-pixel-darker">
       <div className="max-w-4xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16 space-y-4">
@@ -46,8 +65,8 @@ export default function FAQSection() {
 
         {/* FAQ Items */}
         <div className="space-y-4">
-          {faqs.map((faq, index) => (
-            <PixelCard key={index} glowColor="secondary">
+          {faqs.map((faq: FAQItem, index: number) => (
+            <PixelCard key={index} glowColor={faq.color || "secondary"}>
               <button
                 className="w-full text-left"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
