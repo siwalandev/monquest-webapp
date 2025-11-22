@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { hasPermission } from '@/lib/permissions';
 
 // GET - Get specific setting by key
 export async function GET(

@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { ContentType } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 60; // Revalidate every 60 seconds
 
 // GET - Fetch public content (single type or all)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type')?.toUpperCase();
+    const typeParam = searchParams.get('type')?.toUpperCase();
 
     // If specific type requested, return only that
-    if (type) {
+    if (typeParam && Object.values(ContentType).includes(typeParam as ContentType)) {
       const content = await prisma.content.findUnique({
-        where: { type },
+        where: { type: typeParam as ContentType },
       });
 
       return NextResponse.json({

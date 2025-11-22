@@ -145,12 +145,13 @@ export async function POST(request: NextRequest) {
     // });
 
     // Create notification for new role
+    const permissionsCount = Array.isArray(role.permissions) ? role.permissions.length : 0;
     await prisma.notification.create({
       data: {
         userId: null, // Broadcast to all admins
         type: 'SUCCESS',
         title: 'New Role Created',
-        message: `Role "${role.name}" has been created with ${role.permissions.length} permissions`,
+        message: `Role "${role.name}" has been created with ${permissionsCount} permissions`,
         actionUrl: '/admin/roles',
       },
     });

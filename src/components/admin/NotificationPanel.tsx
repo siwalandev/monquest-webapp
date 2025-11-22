@@ -31,20 +31,31 @@ export default function NotificationPanel({
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const limit = 5;
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+      setPage(1); // Reset to page 1 when search changes
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
     if (isOpen) {
       fetchNotifications();
     }
-  }, [isOpen, page, searchInput]);
+  }, [isOpen, page, debouncedSearch]);
 
   const fetchNotifications = async () => {
     setIsLoading(true);
     try {
       const response = await authFetch(
-        `/api/notifications?page=${page}&limit=${limit}&search=${searchInput}`
+        `/api/notifications?page=${page}&limit=${limit}&search=${debouncedSearch}`
       );
       const result = await response.json();
 
