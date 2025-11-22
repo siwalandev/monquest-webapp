@@ -4,10 +4,10 @@
   "description": "Monquest - Monad Quest Tower Defense Game dApp",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "node -e \"const fs = require('fs'); const paths = ['node_modules/thread-stream/test', 'node_modules/@privy-io/react-auth/node_modules/thread-stream/test', 'node_modules/thread-stream/bench.js', 'node_modules/@privy-io/react-auth/node_modules/thread-stream/bench.js', 'node_modules/thread-stream/LICENSE', 'node_modules/@privy-io/react-auth/node_modules/thread-stream/LICENSE', 'node_modules/thread-stream/README.md', 'node_modules/@privy-io/react-auth/node_modules/thread-stream/README.md']; paths.forEach(p => { try { if (fs.existsSync(p)) fs.rmSync(p, {recursive: true, force: true}); } catch(e) {} });\"",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
     "prisma:seed": "tsx prisma/seed.ts",
