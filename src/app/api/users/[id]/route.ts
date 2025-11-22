@@ -144,6 +144,25 @@ export async function PUT(
       });
     }
 
+    // Create notification for user update
+    const changeDesc = [];
+    if (updateData.name) changeDesc.push('name');
+    if (updateData.email) changeDesc.push('email');
+    if (updateData.roleId) changeDesc.push('role');
+    if (updateData.status) changeDesc.push('status');
+    
+    if (changeDesc.length > 0) {
+      await prisma.notification.create({
+        data: {
+          userId: null, // Broadcast to all admins
+          type: 'INFO',
+          title: 'User Updated',
+          message: `${user.name}'s ${changeDesc.join(', ')} has been updated`,
+          actionUrl: '/admin/users',
+        },
+      });
+    }
+
     return NextResponse.json({
       success: true,
       data: user,
@@ -232,6 +251,17 @@ export async function DELETE(
         },
       });
     }
+
+    // Create notification for user deletion
+    await prisma.notification.create({
+      data: {
+        userId: null, // Broadcast to all admins
+        type: 'WARNING',
+        title: 'User Deleted',
+        message: `User ${existingUser.name} (${existingUser.email}) has been deleted`,
+        actionUrl: '/admin/users',
+      },
+    });
 
     // Delete user (cascade will handle related records)
     await prisma.user.delete({

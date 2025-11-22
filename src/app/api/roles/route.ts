@@ -144,6 +144,17 @@ export async function POST(request: NextRequest) {
     //   },
     // });
 
+    // Create notification for new role
+    await prisma.notification.create({
+      data: {
+        userId: null, // Broadcast to all admins
+        type: 'SUCCESS',
+        title: 'New Role Created',
+        message: `Role "${role.name}" has been created with ${role.permissions.length} permissions`,
+        actionUrl: '/admin/roles',
+      },
+    });
+
     return NextResponse.json(role, { status: 201 });
   } catch (error) {
     console.error("Error creating role:", error);

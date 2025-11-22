@@ -80,6 +80,17 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Create notification for new API key
+    await prisma.notification.create({
+      data: {
+        userId: null, // Broadcast to all admins
+        type: 'SUCCESS',
+        title: 'API Key Created',
+        message: `New ${apiKey.environment} API key "${apiKey.name}" has been created`,
+        actionUrl: '/admin/settings/api-keys',
+      },
+    });
+
     return NextResponse.json({
       success: true,
       data: apiKey,

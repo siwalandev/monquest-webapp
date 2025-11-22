@@ -215,6 +215,17 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Create notification for new user
+    await prisma.notification.create({
+      data: {
+        userId: null, // Broadcast to all admins
+        type: 'INFO',
+        title: 'New User Registered',
+        message: `${user.name} (${user.email}) has joined the platform`,
+        actionUrl: '/admin/users',
+      },
+    });
+
     return NextResponse.json({
       success: true,
       data: user,

@@ -118,6 +118,17 @@ export async function DELETE(
       });
     }
 
+    // Create notification for API key deletion
+    await prisma.notification.create({
+      data: {
+        userId: null, // Broadcast to all admins
+        type: 'WARNING',
+        title: 'API Key Deleted',
+        message: `API key "${apiKey.name}" has been deleted`,
+        actionUrl: '/admin/settings/api-keys',
+      },
+    });
+
     return NextResponse.json({
       success: true,
       message: 'API key deleted successfully',

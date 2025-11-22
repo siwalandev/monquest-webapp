@@ -95,6 +95,17 @@ export async function PUT(
     //   },
     // });
 
+    // Create notification for role update
+    await prisma.notification.create({
+      data: {
+        userId: null, // Broadcast to all admins
+        type: 'INFO',
+        title: 'Role Updated',
+        message: `Role "${updatedRole.name}" has been updated`,
+        actionUrl: '/admin/roles',
+      },
+    });
+
     return NextResponse.json(updatedRole);
   } catch (error) {
     console.error("Error updating role:", error);
@@ -190,6 +201,21 @@ export async function DELETE(
     //     userId: currentUser.id,
     //   },
     // });
+
+    // Create notification for role deletion
+    const message = role._count.users > 0 
+      ? `Role "${role.name}" has been deleted and ${role._count.users} users were reassigned`
+      : `Role "${role.name}" has been deleted`;
+    
+    await prisma.notification.create({
+      data: {
+        userId: null, // Broadcast to all admins
+        type: 'WARNING',
+        title: 'Role Deleted',
+        message,
+        actionUrl: '/admin/roles',
+      },
+    });
 
     return NextResponse.json({ 
       message: "Role deleted successfully",

@@ -77,6 +77,18 @@ export async function PUT(
       });
     }
 
+    // Create notification for content update
+    const contentName = type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    await prisma.notification.create({
+      data: {
+        userId: null, // Broadcast to all admins
+        type: 'SUCCESS',
+        title: 'Content Updated',
+        message: `${contentName} section has been successfully updated`,
+        actionUrl: `/admin/content/${type}`,
+      },
+    });
+
     return NextResponse.json({
       success: true,
       data: content,

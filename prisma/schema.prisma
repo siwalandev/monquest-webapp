@@ -175,3 +175,27 @@ model ThemePreset {
   @@index([isDefault])
   @@map("theme_presets")
 }
+
+// Notifications untuk admin users
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?  // Null = broadcast to all
+  type      NotificationType @default(INFO)
+  title     String
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  actionUrl String?  // Optional link to related content
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+}
